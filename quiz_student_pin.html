@@ -6,33 +6,22 @@
 <title>ข้อสอบ — Fixlikepro</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
-:root{
-  --bg:#0D0B09;--bg2:#1A1714;--bg3:#222018;--bg4:#2C2820;
-  --orange:#E8793C;--orangeD:#B85A1E;
-  --white:#F5F0EB;--gray1:#C8C0B8;--gray2:#7A736C;--gray3:#3A3530;
-  --green:#27AE60;--red:#E74C3C;--greenDark:#0A2416;--redDark:#2C0A0A;
-  --acc:#E8793C;
-}
+:root{--bg:#0D0B09;--bg2:#1A1714;--bg3:#222018;--bg4:#2C2820;--orange:#E8793C;--orangeD:#B85A1E;--white:#F5F0EB;--gray1:#C8C0B8;--gray2:#7A736C;--gray3:#3A3530;--green:#27AE60;--red:#E74C3C;--greenDark:#0A2416;--redDark:#2C0A0A;--acc:#E8793C;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;padding-bottom:80px;}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bg4);position:sticky;top:0;background:var(--bg);z-index:20;}
 .brand{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--orange);}
 .top-tag{font-size:12px;background:var(--bg3);border:1px solid var(--bg4);padding:4px 12px;border-radius:20px;color:var(--gray1);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-
-.screen{display:none;padding:22px 18px;}
-.screen.active{display:block;}
-
-/* ── PIN SCREEN ── */
+.screen{display:none;padding:22px 18px;}.screen.active{display:block;}
 .pin-hero{text-align:center;margin-bottom:28px;}
 .hero-icon{font-size:48px;margin-bottom:14px;}
 .hero-title{font-size:24px;font-weight:700;margin-bottom:5px;}
 .hero-sub{font-size:14px;color:var(--gray2);}
-.pin-input-wrap{margin-bottom:16px;}
 .lbl{display:block;font-size:13px;color:var(--gray2);margin-bottom:7px;}
 .input{width:100%;background:var(--bg2);border:1.5px solid var(--bg4);border-radius:10px;padding:14px 16px;color:var(--white);font-family:'IBM Plex Mono',monospace;font-size:24px;outline:none;transition:border-color .15s;letter-spacing:.18em;text-align:center;}
 .input:focus{border-color:var(--acc);}
 .input::placeholder{color:var(--gray3);font-size:18px;letter-spacing:.1em;}
-.input-text{font-family:'Sarabun',sans-serif;font-size:16px;letter-spacing:normal;text-align:left;}
+.input-name{font-family:'Sarabun',sans-serif;font-size:16px;letter-spacing:normal;text-align:left;}
 .btn{display:block;width:100%;background:var(--orange);color:var(--bg);border:none;border-radius:10px;padding:15px;font-size:16px;font-weight:700;font-family:'Sarabun',sans-serif;cursor:pointer;transition:background .2s;margin-top:10px;}
 .btn:hover{background:var(--orangeD);}
 .btn:disabled{background:var(--bg4);color:var(--gray2);cursor:not-allowed;}
@@ -41,10 +30,8 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .sc-label{font-size:11px;color:var(--gray2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;}
 .sc-name{font-size:18px;font-weight:700;margin-bottom:3px;}
 .sc-pass{font-size:12px;color:var(--gray2);}
-.error-msg{font-size:13px;color:var(--red);text-align:center;padding:8px;display:none;}
+.error-msg{font-size:13px;color:var(--red);text-align:center;padding:8px 0;display:none;}
 .error-msg.show{display:block;}
-
-/* ── QUIZ ── */
 .prog-row{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
 .prog-track{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
 .prog-bar{height:100%;border-radius:3px;transition:width .4s ease;}
@@ -69,8 +56,6 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .feedback.ng{background:var(--redDark);border:1px solid var(--red);color:#F5A0A0;}
 .btn-next{display:none;width:100%;background:var(--bg3);color:var(--white);border:1.5px solid var(--bg4);border-radius:10px;padding:14px;font-size:15px;font-weight:600;font-family:'Sarabun',sans-serif;cursor:pointer;transition:border-color .15s;}
 .btn-next.show{display:block;}.btn-next:hover{border-color:var(--acc);}
-
-/* ── RESULT ── */
 .result-center{text-align:center;max-width:440px;margin:0 auto;}
 .score-ring{width:110px;height:110px;border-radius:50%;border:3px solid var(--orange);background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 20px;}
 .score-big{font-size:38px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;}
@@ -85,17 +70,16 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .alert{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;font-size:14px;font-weight:600;margin-bottom:10px;}
 .alert.ok{background:var(--greenDark);border:1px solid var(--green);color:var(--green);}
 .alert.ng{background:var(--redDark);border:1px solid var(--red);color:var(--red);}
-
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:all .3s;background:var(--bg3);border:1px solid var(--bg4);border-radius:20px;padding:9px 18px;font-size:13px;white-space:nowrap;z-index:999;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.toast.sending{color:var(--orange);border-color:var(--orange);}.toast.sent{color:var(--green);border-color:var(--green);}.toast.err{color:var(--red);border-color:var(--red);}
-
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--bg4);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
-@keyframes spin{to{transform:rotate(360deg);}}
+.toast.sending{color:var(--orange);border-color:var(--orange);}
+.toast.sent{color:var(--green);border-color:var(--green);}
+.toast.err{color:var(--red);border-color:var(--red);}
 @keyframes fadein{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
 </style>
 </head>
 <body>
+
 <div class="topbar">
   <span class="brand">FIXLIKEPRO</span>
   <span class="top-tag" id="top-tag">กรอก PIN เพื่อเข้าสอบ</span>
@@ -108,21 +92,17 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
     <h1 class="hero-title">เข้าสอบ</h1>
     <p class="hero-sub">กรอก PIN 4 หลัก ที่ครูให้ไว้</p>
   </div>
-
   <div class="session-card" id="session-card">
     <div class="sc-label">ชุดข้อสอบ</div>
     <div class="sc-name" id="sc-name"></div>
     <div class="sc-pass" id="sc-pass"></div>
   </div>
-
   <label class="lbl">PIN (4 หลัก)</label>
   <input class="input" id="pin-input" type="tel" maxlength="4" placeholder="0000" oninput="onPinInput()">
   <div class="error-msg" id="error-msg"></div>
-
-  <div id="name-section" style="display:none">
-    <br>
+  <div id="name-section" style="display:none;margin-top:16px;">
     <label class="lbl">ชื่อ-นามสกุล</label>
-    <input class="input input-text" id="name-input" type="text" placeholder="เช่น สมชาย ใจดี" autocomplete="name" oninput="onNameInput()">
+    <input class="input input-name" id="name-input" type="text" placeholder="เช่น สมชาย ใจดี" autocomplete="name" oninput="onNameInput()">
     <button class="btn" id="btn-start" disabled onclick="startQuiz()">เริ่มทำข้อสอบ →</button>
   </div>
 </div>
@@ -157,88 +137,37 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 
 <div class="toast" id="toast"></div>
 
+<!-- ══ ทุก logic รวมอยู่ใน module เดียว — แก้ bug _sessionData ══ -->
 <script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import{getFirestore,doc,getDoc,collection,addDoc,serverTimestamp}
-  from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp }
+                          from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-// ┌──────────────────────────────────────────────────┐
-// │  วาง Firebase Config ที่นี่                       │
-// └──────────────────────────────────────────────────┘
-const firebaseConfig={
-  apiKey:"AIzaSyB2rLc1FFlq_GgPpmKJfH6CkNWKlS1VeIE",
-  authDomain:"endu-training-center.firebaseapp.com",
-  projectId:"endu-training-center",
-  storageBucket:"endu-training-center.firebasestorage.app",
-  messagingSenderId:"753650086986",
-  appId:"1:753650086986:web:554de37bee5ee25713a2b3"
+/* ════ Firebase Config ════ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyB2rLc1FFlq_GgPpmKJfH6CkNWKlS1VeIE",
+  authDomain:        "endu-training-center.firebaseapp.com",
+  projectId:         "endu-training-center",
+  storageBucket:     "endu-training-center.firebasestorage.app",
+  messagingSenderId: "753650086986",
+  appId:             "1:753650086986:web:554de37bee5ee25713a2b3"
 };
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
 
-let sessionData=null,pinTimer=null;
-
-window.onPinInput=async()=>{
-  const pin=document.getElementById("pin-input").value.trim();
-  document.getElementById("session-card").className="session-card";
-  document.getElementById("name-section").style.display="none";
-  document.getElementById("error-msg").className="error-msg";
-  if(pin.length!==4)return;
-  clearTimeout(pinTimer);
-  pinTimer=setTimeout(async()=>{
-    try{
-      const snap=await getDoc(doc(db,"sessions",pin));
-      if(!snap.exists()){showErr("ไม่พบ PIN นี้ กรุณาตรวจสอบกับครู");return;}
-      const data=snap.data();
-      if(!data.active){showErr("Session นี้ปิดแล้ว กรุณาติดต่อครู");return;}
-      sessionData=data;
-      document.getElementById("sc-name").textContent=data.quizName;
-      document.getElementById("sc-pass").textContent="เกณฑ์ผ่าน "+window.QUIZ_SETS[data.quizKey].passLine+"% · "+window.QUIZ_SETS[data.quizKey].qs.length+" ข้อ";
-      document.getElementById("session-card").className="session-card show";
-      document.getElementById("name-section").style.display="block";
-      const c=window.QUIZ_SETS[data.quizKey].color;
-      document.querySelector(":root").style.setProperty("--acc",c);
-    }catch(e){showErr("เชื่อมต่อ Firebase ไม่ได้: "+e.message);}
-  },600);
-};
-
-function showErr(msg){const e=document.getElementById("error-msg");e.textContent=msg;e.className="error-msg show";}
-
-window.onNameInput=()=>{
-  document.getElementById("btn-start").disabled=document.getElementById("name-input").value.trim().length<2;
-};
-
-window._submitResult=async(payload)=>{
-  showToast("กำลังส่งผลให้ครู...","sending");
-  try{
-    await addDoc(collection(db,"results"),{...payload,pin:sessionData.pin,quizKey:sessionData.quizKey,submittedAt:serverTimestamp()});
-    showToast("✓ ส่งผลสำเร็จ","sent");
-    document.getElementById("alert-sent").style.display="flex";
-    setTimeout(()=>hideToast(),3500);
-  }catch(e){
-    showToast("ส่งไม่สำเร็จ: "+e.message,"err");
-    document.getElementById("alert-fail").style.display="flex";
-  }
-};
-
-function showToast(m,c){const t=document.getElementById("toast");t.textContent=m;t.className="toast show "+(c||"");}
-function hideToast(){document.getElementById("toast").className="toast";}
-</script>
-
-<script>
-/* ════ QUIZ SETS — เพิ่มชุดใหม่ที่นี่ ════════════════ */
-window.QUIZ_SETS={
+/* ════ Quiz Sets ════ */
+const QUIZ_SETS = {
   basic1:{name:"Basic H1",label:"BASIC H1",color:"#0D9E75",badgeBg:"#E1F5EE",badgeColor:"#097A59",passLine:80,qs:[
     {cat:"เครื่องมือ",q:"ไขควงสำหรับถอดสกรู iPhone รุ่นใหม่คือชนิดใด?",ch:["Philips #00","Pentalobe P2","Torx T5","Flathead"],ans:1,ex:"iPhone ใช้สกรู Pentalobe ต้องใช้ไขควง P2 โดยเฉพาะ"},
     {cat:"เครื่องมือ",q:"Spudger ใช้ทำอะไร?",ch:["ถอดสกรู","งัดฝาและ connector โดยไม่ทำลาย","วัดแรงดัน","ตัดสาย"],ans:1,ex:"Spudger งัดและแยกชิ้นส่วนโดยไม่ขีดข่วนหรือ short"},
-    {cat:"สายแฟลต",q:"ZIF connector ถอดอย่างไรถูกต้อง?",ch:["ดึงตรงแรงๆ","เปิดฝาล็อกก่อน แล้วดึงสายออก","อุ่น heat gun","ตัดสาย"],ans:1,ex:"ต้องเปิดฝาล็อก (flip-lock) ก่อนเสมอ"},
+    {cat:"สายแฟลต",q:"ZIF connector ถอดอย่างไรถูกต้อง?",ch:["ดึงตรงแรงๆ","เปิดฝาล็อกก่อน แล้วดึงสายออก","อุ่น heat gun","ตัดสาย"],ans:1,ex:"ต้องเปิดฝาล็อก (flip-lock) ก่อนเสมอ ถ้าดึงขณะล็อกอยู่สายขาดทันที"},
     {cat:"iPhone",q:"เปิดจอ iPhone ribbon cable ด้านไหน ระวังอะไร?",ch:["ขวา เปิดเกิน 45° ขาด","ซ้าย เปิดเกิน 90° ขาด","บน ไม่ต้องระวัง","ไม่มี ribbon"],ans:1,ex:"Ribbon เชื่อมฝั่งซ้ายบน เปิดเกิน 90° ขาดทันที"},
     {cat:"iPhone",q:"pull-tab กาวแบต iPhone ดึงอย่างไร?",ch:["ดึงตรงขึ้น","ดึงเฉียง 45° ลงช้าๆ","งัดด้วย spudger","อุ่นก่อนดึงตรง"],ans:1,ex:"ดึงเฉียง 45° ลงช้าๆ กาวยืดออกเองไม่ขาด"},
     {cat:"Android",q:"ก่อนแกะ Android สิ่งสำคัญที่สุดคืออะไร?",ch:["เปิด heat gun","ถ่ายรูป","ถอด SIM","ปิดเครื่องและถอดแบต"],ans:3,ex:"ต้องปิดเครื่องและถอดแบตก่อนเสมอ"},
     {cat:"Android",q:"Android ที่ใช้กาวยึดฝาหลัง ทำอะไรก่อนเปิด?",ch:["ดึงแรงๆ","อุ่น heat gun ที่ขอบฝาก่อน แล้วงัดด้วย spudger","แช่น้ำ","ใช้มีดกรีด"],ans:1,ex:"กาวอ่อนตัวที่ 60-80°C แล้วงัดเบาๆ"},
     {cat:"ความปลอดภัย",q:"แบตลิเธียมอันตรายอย่างไรหากถูกทำลาย?",ch:["รั่วนิดหน่อย","ระเบิดและติดไฟได้ เกิด thermal runaway","ช็อต","หมดเร็ว"],ans:1,ex:"แบตลิเธียมมีสารเคมีติดไฟง่าย ถ้าถูกโก่งหรือแทงอาจระเบิดในวินาที"},
     {cat:"ความปลอดภัย",q:"ก่อนแตะสายแฟลตหรืออะไหล่ ต้องทำอะไรก่อน?",ch:["ถอด SIM","ถอด connector แบตก่อนเสมอ","ปิดจอ","ถอดสกรูทั้งหมด"],ans:1,ex:"ถอด connector แบตก่อนเสมอ ป้องกัน short circuit"},
-    {cat:"เปลี่ยนแบต",q:"หลังใส่แบตใหม่ ก่อนประกอบฝา ควรทำอะไรก่อน?",ch:["ประกอบทันที","เปิดเครื่องทดสอบก่อน","ใส่กาวก่อน","ไม่ต้องทดสอบ"],ans:1,ex:"ต้องเปิดทดสอบก่อนประกอบฝา จะได้แก้ปัญหาได้ง่ายกว่า"},
+    {cat:"เปลี่ยนแบต",q:"หลังใส่แบตใหม่ ก่อนประกอบฝา ควรทำอะไรก่อน?",ch:["ประกอบทันที","เปิดเครื่องทดสอบก่อน","ใส่กาวก่อน","ไม่ต้องทดสอบ"],ans:1,ex:"ต้องเปิดทดสอบก่อนประกอบฝา"},
     {cat:"เปลี่ยนจอ",q:"Suction cup ใช้ทำอะไรในการเปลี่ยนจอ?",ch:["ดูดฝุ่น","สร้างแรงดึงเพื่อเปิดจอ","ทำความสะอาด","ยึดเครื่อง"],ans:1,ex:"Suction cup สร้างแรงดึงช่วยเปิดจอโดยไม่ต้องงัดแรง"},
     {cat:"เปลี่ยนจอ",q:"หลังต่อสายแฟลตจอใหม่ ต้องตรวจอะไร?",ch:["แค่ว่าติด","Touch ทุกจุด จอ สี brightness","แค่สี","ไม่ต้อง"],ans:1,ex:"ต้องตรวจ touch ทุกมุม ความสว่าง สี ก่อนประกอบ"},
     {cat:"โครงสร้าง",q:"OLED กับ LCD ต่างกันในแง่การซ่อมอย่างไร?",ch:["แพงกว่าเท่านั้น","OLED บางและอ่อนแตกง่ายกว่า LCD ราคาสูงกว่า","LCD แตกง่ายกว่า","ไม่ต่าง"],ans:1,ex:"OLED อ่อนไหวต่อแรงกดและความร้อนมากกว่า LCD"},
@@ -264,7 +193,7 @@ window.QUIZ_SETS={
   ]},
   adv1:{name:"Advance H1",label:"ADVANCE H1",color:"#7F77DD",badgeBg:"#EEEDFE",badgeColor:"#534AB7",passLine:75,qs:[
     {cat:"Power",q:"วงจรเปิดเครื่องเริ่มต้นจากอะไร?",ch:["CPU สั่ง PMIC","กดปุ่ม → PWRKEY → PMIC จ่ายไฟหลัก","แบตจ่ายโดยตรง","Baseband เริ่มก่อน"],ans:1,ex:"กดปุ่ม → PWRKEY → PMIC จ่ายไฟ rail → CPU boot → OS"},
-    {cat:"Power",q:"PMIC ทำหน้าที่อะไร?",ch:["ควบคุม RF","จัดการแรงดันและกระแสในระบบ","เก็บข้อมูล","ประมวลผล"],ans:1,ex:"PMIC = Power Management IC แปลงและจัดการแรงดันให้ทุกส่วน"},
+    {cat:"Power",q:"PMIC ทำหน้าที่อะไร?",ch:["ควบคุม RF","จัดการแรงดันและกระแสในระบบ","เก็บข้อมูล","ประมวลผล"],ans:1,ex:"PMIC แปลงและจัดการแรงดันให้ทุกส่วน"},
     {cat:"ชาร์จ",q:"ชาร์จไม่เข้า ขั้นตอนแรกที่ควรตรวจคืออะไร?",ch:["เปลี่ยน PMIC","ตรวจ port สาย และแรงดัน VBUS ก่อน","รีเซ็ต","เปลี่ยนแบต"],ans:1,ex:"เริ่มจากส่วนที่เข้าถึงง่าย: port, สาย, VBUS"},
     {cat:"ชาร์จ",q:"VBUS ในวงจรชาร์จ USB คือแรงดันเท่าไร?",ch:["3.7V","4.2V","5V หรือสูงกว่าถ้า PD","12V"],ans:2,ex:"VBUS ปกติ 5V สำหรับชาร์จปกติ หรือสูงกว่าถ้าใช้ USB-PD"},
     {cat:"เปิดเครื่อง",q:"กระแสขึ้นแล้วตก (spike แล้วกลับ 0) แสดงถึงอะไร?",ch:["แบตหมด","CPU boot ล้มเหลวซ้ำๆ อาจ NAND หรือ CPU","ชาร์จปกติ","ลำโพงเสีย"],ans:1,ex:"CPU พยายาม boot ล้มเหลวซ้ำๆ อาจเกิดจาก NAND เสีย"},
@@ -298,83 +227,190 @@ window.QUIZ_SETS={
   ]},
 };
 
-/* ════ QUIZ LOGIC ════ */
-const L=["A","B","C","D"];
-const $=id=>document.getElementById(id);
-let curQ=0,score=0,answers=[],activeSet=null,studentName="";
+/* ════ State — ทุก variable อยู่ใน module นี้เดียว ════ */
+const L = ["A","B","C","D"];
+const $ = id => document.getElementById(id);
 
-window.startQuiz=()=>{
-  studentName=$("name-input").value.trim();
-  activeSet=window.QUIZ_SETS[window._sessionData.quizKey];
-  curQ=0;score=0;answers=[];
-  $("top-tag").textContent=studentName+" · "+activeSet.name;
-  $("prog-bar").style.background=activeSet.color;
-  document.querySelector(":root").style.setProperty("--acc",activeSet.color);
-  $("alert-sent").style.display="none";
-  $("alert-fail").style.display="none";
-  showScr("scr-quiz");renderQ();
+let sessionData = null;   // ← เก็บไว้ใน module scope ปลอดภัยแน่นอน
+let activeSet   = null;
+let studentName = "";
+let curQ = 0, score = 0, answers = [];
+let pinTimer = null;
+
+/* ════ PIN ════ */
+window.onPinInput = async () => {
+  const pin = $("pin-input").value.trim();
+  $("session-card").className = "session-card";
+  $("name-section").style.display = "none";
+  $("error-msg").className = "error-msg";
+  sessionData = null;
+  $("btn-start").disabled = true;
+
+  if (pin.length !== 4) return;
+
+  clearTimeout(pinTimer);
+  pinTimer = setTimeout(async () => {
+    try {
+      const snap = await getDoc(doc(db, "sessions", pin));
+      if (!snap.exists()) { showErr("ไม่พบ PIN นี้ กรุณาตรวจสอบกับครู"); return; }
+      const data = snap.data();
+      if (!data.active) { showErr("Session นี้ปิดแล้ว กรุณาติดต่อครู"); return; }
+      const set = QUIZ_SETS[data.quizKey];
+      if (!set) { showErr("ไม่พบชุดข้อสอบ กรุณาติดต่อครู"); return; }
+
+      sessionData = data;  // ← set ใน module scope
+
+      $("sc-name").textContent = data.quizName;
+      $("sc-pass").textContent = "เกณฑ์ผ่าน " + set.passLine + "% · " + set.qs.length + " ข้อ";
+      $("session-card").className = "session-card show";
+      $("name-section").style.display = "block";
+      document.querySelector(":root").style.setProperty("--acc", set.color);
+    } catch(e) {
+      showErr("เชื่อมต่อ Firebase ไม่ได้: " + e.message);
+      console.error(e);
+    }
+  }, 600);
 };
 
-function renderQ(){
-  const q=activeSet.qs[curQ],tot=activeSet.qs.length;
-  $("prog-bar").style.width=(curQ/tot*100)+"%";
-  $("prog-lbl").textContent=(curQ+1)+" / "+tot;
-  $("quiz-body").innerHTML=`
+/* ════ Name ════ */
+window.onNameInput = () => {
+  $("btn-start").disabled = $("name-input").value.trim().length < 2;
+};
+
+/* ════ Start Quiz — อ่าน sessionData จาก module scope ════ */
+window.startQuiz = () => {
+  if (!sessionData) {
+    showErr("กรุณากรอก PIN ก่อน");
+    return;
+  }
+  activeSet   = QUIZ_SETS[sessionData.quizKey];
+  studentName = $("name-input").value.trim();
+  curQ = 0; score = 0; answers = [];
+
+  $("top-tag").textContent = studentName + " · " + activeSet.name;
+  $("prog-bar").style.background = activeSet.color;
+  document.querySelector(":root").style.setProperty("--acc", activeSet.color);
+  $("alert-sent").style.display = "none";
+  $("alert-fail").style.display = "none";
+
+  showScr("scr-quiz");
+  renderQ();
+};
+
+/* ════ Quiz ════ */
+function renderQ() {
+  const q = activeSet.qs[curQ], tot = activeSet.qs.length;
+  $("prog-bar").style.width = (curQ / tot * 100) + "%";
+  $("prog-lbl").textContent = (curQ + 1) + " / " + tot;
+  $("quiz-body").innerHTML = `
     <div class="q-set-badge" style="background:${activeSet.badgeBg};color:${activeSet.badgeColor}">${activeSet.label}</div>
     <div class="q-cat">${q.cat}</div>
-    <div class="q-row"><div class="q-badge" style="background:${activeSet.color}">${curQ+1}</div><div class="q-text">${q.q}</div></div>
-    <div class="choices">${q.ch.map((c,i)=>`<button class="choice" id="c${i}" onclick="pick(${i})"><span class="c-letter">${L[i]}</span><span class="c-text">${c}</span></button>`).join("")}</div>
+    <div class="q-row">
+      <div class="q-badge" style="background:${activeSet.color}">${curQ + 1}</div>
+      <div class="q-text">${q.q}</div>
+    </div>
+    <div class="choices">
+      ${q.ch.map((c,i) => `
+        <button class="choice" id="c${i}" onclick="pick(${i})">
+          <span class="c-letter">${L[i]}</span>
+          <span class="c-text">${c}</span>
+        </button>`).join("")}
+    </div>
     <div class="feedback" id="fb"></div>
-    <button class="btn-next" id="btn-next" onclick="nextQ()">${curQ<tot-1?"ข้อถัดไป →":"ดูผลคะแนน →"}</button>`;
+    <button class="btn-next" id="btn-next" onclick="nextQ()">
+      ${curQ < tot - 1 ? "ข้อถัดไป →" : "ดูผลคะแนน →"}
+    </button>`;
 }
 
-window.pick=(idx)=>{
-  const q=activeSet.qs[curQ],ok=idx===q.ans;
-  if(ok)score++;
-  answers.push({qIdx:curQ,chosen:idx,ok});
-  document.querySelectorAll(".choice").forEach((b,i)=>{
-    b.disabled=true;
-    if(i===idx&&ok)b.className="choice correct";
-    else if(i===idx&&!ok)b.className="choice wrong";
-    else if(!ok&&i===q.ans)b.className="choice show-ans";
+window.pick = (idx) => {
+  const q = activeSet.qs[curQ], ok = idx === q.ans;
+  if (ok) score++;
+  answers.push({ qIdx: curQ, chosen: idx, ok });
+  document.querySelectorAll(".choice").forEach((b,i) => {
+    b.disabled = true;
+    if (i === idx && ok)         b.className = "choice correct";
+    else if (i === idx && !ok)   b.className = "choice wrong";
+    else if (!ok && i === q.ans) b.className = "choice show-ans";
   });
-  const fb=$("fb");
-  fb.className=ok?"feedback show ok":"feedback show ng";
-  fb.innerHTML=ok?`<strong>✓ ถูกต้อง!</strong><br>${q.ex}`:`<strong>✗ ยังไม่ถูก</strong><br>คำตอบที่ถูกคือ <strong>${L[q.ans]}. ${q.ch[q.ans]}</strong><br>${q.ex}`;
-  $("btn-next").className="btn-next show";
+  const fb = $("fb");
+  fb.className = ok ? "feedback show ok" : "feedback show ng";
+  fb.innerHTML = ok
+    ? `<strong>✓ ถูกต้อง!</strong><br>${q.ex}`
+    : `<strong>✗ ยังไม่ถูก</strong><br>คำตอบที่ถูกคือ <strong>${L[q.ans]}. ${q.ch[q.ans]}</strong><br>${q.ex}`;
+  $("btn-next").className = "btn-next show";
 };
 
-window.nextQ=()=>{curQ++;curQ>=activeSet.qs.length?showResult():renderQ();};
+window.nextQ = () => {
+  curQ++;
+  curQ >= activeSet.qs.length ? showResult() : renderQ();
+};
 
-function showResult(){
-  const tot=activeSet.qs.length,pct=Math.round(score/tot*100),pass=pct>=activeSet.passLine;
-  $("score-ring").style.borderColor=activeSet.color;
-  $("r-score").textContent=score;$("r-score").style.color=activeSet.color;
-  $("r-of").textContent="จาก "+tot;
-  $("r-ok").textContent=score;$("r-bad").textContent=tot-score;$("r-pct").textContent=pct;
-  let grade,msg;
-  if(pct===100){grade="🏆 Perfect!";msg="ยอดเยี่ยม ทุกข้อถูกต้อง!";}
-  else if(pass){grade="✅ ผ่าน";msg=pct+"% — ผ่านเกณฑ์ "+activeSet.passLine+"% แล้ว!";}
-  else{grade="❌ ยังไม่ผ่าน";msg=pct+"% — เกณฑ์ "+activeSet.passLine+"% ลองทบทวนใหม่นะครับ";}
-  $("r-grade").textContent=grade;$("r-msg").textContent=msg;
+/* ════ Result ════ */
+function showResult() {
+  const tot  = activeSet.qs.length;
+  const pct  = Math.round(score / tot * 100);
+  const pass = pct >= activeSet.passLine;
+
+  $("score-ring").style.borderColor = activeSet.color;
+  $("r-score").textContent = score;
+  $("r-score").style.color = activeSet.color;
+  $("r-of").textContent    = "จาก " + tot;
+  $("r-ok").textContent    = score;
+  $("r-bad").textContent   = tot - score;
+  $("r-pct").textContent   = pct;
+
+  let grade, msg;
+  if (pct === 100) { grade = "🏆 Perfect!"; msg = "ยอดเยี่ยม ทุกข้อถูกต้อง!"; }
+  else if (pass)   { grade = "✅ ผ่าน"; msg = pct + "% — ผ่านเกณฑ์ " + activeSet.passLine + "% แล้ว!"; }
+  else             { grade = "❌ ยังไม่ผ่าน"; msg = pct + "% — เกณฑ์ " + activeSet.passLine + "% ลองทบทวนใหม่นะครับ"; }
+
+  $("r-grade").textContent = grade;
+  $("r-msg").textContent   = msg;
   showScr("scr-result");
-  const wrongTopics=[...new Set(answers.filter(a=>!a.ok).map(a=>activeSet.qs[a.qIdx].cat))];
-  const payload={name:studentName,score,total:tot,pct,passed:pass,wrongTopics,wrongItems:answers.filter(a=>!a.ok).map(a=>activeSet.qs[a.qIdx].q),quiz:activeSet.name};
-  if(typeof window._submitResult==="function")window._submitResult(payload);
+
+  const wrongTopics = [...new Set(answers.filter(a => !a.ok).map(a => activeSet.qs[a.qIdx].cat))];
+  showToast("กำลังส่งผลให้ครู...", "sending");
+
+  addDoc(collection(db, "results"), {
+    name:        studentName,
+    score,
+    total:       tot,
+    pct,
+    passed:      pass,
+    wrongTopics,
+    wrongItems:  answers.filter(a => !a.ok).map(a => activeSet.qs[a.qIdx].q),
+    quiz:        activeSet.name,
+    pin:         sessionData.pin,
+    quizKey:     sessionData.quizKey,
+    submittedAt: serverTimestamp()
+  }).then(() => {
+    showToast("✓ ส่งผลสำเร็จ", "sent");
+    $("alert-sent").style.display = "flex";
+    setTimeout(hideToast, 3500);
+  }).catch(e => {
+    console.error(e);
+    showToast("ส่งไม่สำเร็จ: " + e.message, "err");
+    $("alert-fail").style.display = "flex";
+  });
 }
 
-function showScr(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"});}
-
-/* bridge for Firebase module */
-window._sessionData=null;
-const origOnPin=window.onPinInput;
-window.onPinInput=async()=>{await origOnPin?.();};
-/* store session data after lookup */
-const _origSetDoc=window.onPinInput;
-Object.defineProperty(window,"_sessionData",{
-  get(){return this.__sd;},
-  set(v){this.__sd=v;if(v)window.startQuiz&&(document.getElementById("btn-start").disabled=false);}
-});
+/* ════ Helpers ════ */
+function showScr(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function showErr(msg) {
+  const e = $("error-msg");
+  e.textContent = msg;
+  e.className = "error-msg show";
+}
+function showToast(msg, cls) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "toast show " + (cls || "");
+}
+function hideToast() { $("toast").className = "toast"; }
 </script>
 </body>
 </html>
