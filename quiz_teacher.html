@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ครู — Fixlikepro Quiz</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+:root{
+  --bg:#0D0B09;--bg2:#181512;--bg3:#211D1A;--bg4:#2C2820;--bg5:#352F2A;
+  --orange:#E8793C;--orangeD:#B85A1E;
+  --teal:#0D9E75;--purple:#7F77DD;--blue:#3498DB;--pink:#E91E63;
+  --white:#F5F0EB;--gray1:#C8C0B8;--gray2:#7A736C;--gray3:#3A3530;
+  --green:#27AE60;--red:#E74C3C;--amber:#D4A017;
+  --greenDark:#0A2416;--redDark:#2C0A0A;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;padding-bottom:60px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--bg2);border-bottom:1px solid var(--bg4);position:sticky;top:0;z-index:30;}
+.brand{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--orange);}
+.role-tag{font-size:11px;background:var(--bg4);padding:4px 10px;border-radius:20px;color:var(--gray1);}
+.live-wrap{display:flex;align-items:center;gap:6px;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.4s infinite;}
+.live-lbl{font-size:12px;color:var(--green);font-weight:600;}
+
+.screen{display:none;padding:22px 18px;}
+.screen.active{display:block;}
+
+/* ── SELECT QUIZ ── */
+.page-title{font-size:22px;font-weight:700;margin-bottom:6px;}
+.page-sub{font-size:14px;color:var(--gray2);margin-bottom:24px;}
+.quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.quiz-card{background:var(--bg2);border:2px solid var(--bg4);border-radius:12px;padding:16px 14px;cursor:pointer;transition:all .2s;position:relative;}
+.quiz-card:hover{transform:translateY(-2px);}
+.quiz-card.selected{transform:translateY(-2px);}
+.quiz-card.selected::after{content:'✓';position:absolute;top:10px;right:12px;font-size:14px;font-weight:700;}
+.qc-level{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
+.qc-name{font-size:18px;font-weight:700;margin-bottom:3px;}
+.qc-desc{font-size:11px;color:var(--gray2);line-height:1.4;}
+.qc-pass{font-size:10px;margin-top:8px;padding:3px 8px;border-radius:20px;display:inline-block;font-weight:600;}
+/* card colors */
+.cb1{border-color:transparent;}.cb1.selected{background:#061A10;border-color:var(--teal);}.cb1 .qc-level,.cb1 .qc-name,.cb1.selected::after{color:var(--teal);}.cb1 .qc-pass{background:#E1F5EE;color:#097A59;}
+.cb2{border-color:transparent;}.cb2.selected{background:#1A0A04;border-color:var(--orange);}.cb2 .qc-level,.cb2 .qc-name,.cb2.selected::after{color:var(--orange);}.cb2 .qc-pass{background:#FAECE7;color:#B85A1E;}
+.ca1{border-color:transparent;}.ca1.selected{background:#0D0B1C;border-color:var(--purple);}.ca1 .qc-level,.ca1 .qc-name,.ca1.selected::after{color:var(--purple);}.ca1 .qc-pass{background:#EEEDFE;color:#534AB7;}
+.ca2{border-color:transparent;}.ca2.selected{background:#071019;border-color:var(--blue);}.ca2 .qc-level,.ca2 .qc-name,.ca2.selected::after{color:var(--blue);}.ca2 .qc-pass{background:#EBF5FB;color:#1F6FAB;}
+.btn{display:block;width:100%;border:none;border-radius:10px;padding:15px;font-size:16px;font-weight:700;font-family:'Sarabun',sans-serif;cursor:pointer;transition:all .2s;}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+.btn-orange{background:var(--orange);color:var(--bg);}
+.btn-orange:hover:not(:disabled){background:var(--orangeD);}
+.btn-red{background:var(--redDark);color:var(--red);border:1.5px solid var(--red);}
+.btn-red:hover{background:#3E0E0E;}
+
+/* ── SESSION ACTIVE ── */
+.session-header{text-align:center;padding:20px 0 24px;}
+.pin-label{font-size:12px;color:var(--gray2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+.pin-display{font-size:64px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--orange);letter-spacing:.12em;line-height:1;}
+.pin-hint{font-size:13px;color:var(--gray2);margin-top:8px;}
+.session-info{display:flex;gap:10px;margin-bottom:20px;}
+.si-card{flex:1;background:var(--bg2);border:1px solid var(--bg4);border-radius:10px;padding:12px;text-align:center;}
+.si-n{font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.si-n.o{color:var(--orange);}.si-n.g{color:var(--green);}.si-n.r{color:var(--red);}
+.si-l{font-size:11px;color:var(--gray2);margin-top:3px;}
+.prog-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.prog-track{flex:1;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--green);border-radius:3px;transition:width .5s;}
+.prog-pct{font-size:12px;color:var(--green);font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+.weak-wrap{background:var(--bg2);border:1px solid var(--bg4);border-radius:10px;padding:14px;margin-bottom:16px;}
+.weak-title{font-size:11px;font-weight:700;color:var(--gray2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;}
+.weak-row{display:flex;flex-wrap:wrap;gap:5px;}
+.wchip{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;}
+.wchip.high{background:var(--redDark);color:var(--red);border:1px solid var(--red);}
+.wchip.med{background:#2A1A0A;color:var(--amber);border:1px solid var(--amber);}
+.wchip.low{background:var(--greenDark);color:var(--green);border:1px solid var(--green);}
+.wchip.none{color:var(--gray3);}
+
+/* ── STUDENT LIST ── */
+.list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.list-title{font-size:13px;font-weight:700;}
+.sort-wrap{display:flex;gap:4px;}
+.sort-btn{font-size:11px;padding:3px 9px;border-radius:20px;background:transparent;border:1px solid var(--bg5);color:var(--gray2);cursor:pointer;font-family:'Sarabun',sans-serif;}
+.sort-btn.active{background:var(--orange);border-color:var(--orange);color:var(--bg);}
+.s-list{display:flex;flex-direction:column;gap:7px;margin-bottom:20px;}
+.s-row{background:var(--bg2);border:1px solid var(--bg4);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:9px;animation:rowIn .3s ease;}
+.s-row.pr{border-left:3px solid var(--green);}.s-row.fr{border-left:3px solid var(--red);}
+.s-rank{font-size:11px;color:var(--gray3);font-family:'IBM Plex Mono',monospace;min-width:20px;text-align:right;}
+.s-info{flex:1;min-width:0;}
+.s-name{font-size:14px;font-weight:600;}
+.s-meta{font-size:11px;color:var(--gray2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.s-right{text-align:right;flex-shrink:0;}
+.s-score{font-size:17px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.s-score.p{color:var(--green);}.s-score.f{color:var(--red);}
+.s-pct{font-size:10px;color:var(--gray2);}
+.s-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;display:inline-block;margin-top:2px;}
+.s-badge.p{background:var(--greenDark);color:var(--green);border:1px solid var(--green);}
+.s-badge.f{background:var(--redDark);color:var(--red);border:1px solid var(--red);}
+
+.last-updated{text-align:center;font-size:10px;color:var(--gray3);padding:4px 0 10px;}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:all .3s;background:var(--bg3);border:1px solid var(--bg5);border-radius:20px;padding:8px 16px;font-size:12px;color:var(--green);white-space:nowrap;z-index:99;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
+@keyframes rowIn{from{opacity:0;transform:translateY(-5px);}to{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="brand">FIXLIKEPRO</span>
+  <span class="role-tag">หน้าครู</span>
+  <div class="live-wrap" id="live-wrap" style="display:none"><div class="live-dot"></div><span class="live-lbl">SESSION ใช้งาน</span></div>
+</div>
+
+<!-- ══ SCREEN: SELECT QUIZ ══ -->
+<div class="screen active" id="scr-select">
+  <p class="page-title">เปิด Session ใหม่</p>
+  <p class="page-sub">เลือกชุดข้อสอบ แล้วกด "เปิด Session" เพื่อรับ PIN แชร์ให้นักเรียน</p>
+  <div class="quiz-grid" id="quiz-grid">
+    <!-- filled by JS from QUIZ_SETS -->
+  </div>
+  <button class="btn btn-orange" id="btn-open" disabled onclick="openSession()">เปิด Session →</button>
+</div>
+
+<!-- ══ SCREEN: SESSION ACTIVE ══ -->
+<div class="screen" id="scr-session">
+  <div class="session-header">
+    <div class="pin-label">PIN สำหรับนักเรียน</div>
+    <div class="pin-display" id="pin-display">----</div>
+    <div class="pin-hint" id="pin-hint">แชร์ PIN นี้ให้นักเรียนกรอกในหน้าข้อสอบ</div>
+  </div>
+  <div class="session-info">
+    <div class="si-card"><div class="si-n o" id="cnt-submit">0</div><div class="si-l">ส่งแล้ว</div></div>
+    <div class="si-card"><div class="si-n g" id="cnt-pass">0</div><div class="si-l">ผ่าน</div></div>
+    <div class="si-card"><div class="si-n r" id="cnt-fail">0</div><div class="si-l">ไม่ผ่าน</div></div>
+    <div class="si-card"><div class="si-n" id="avg-score" style="color:var(--amber)">-</div><div class="si-l">เฉลี่ย</div></div>
+  </div>
+  <div class="prog-row">
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="prog-pct" id="prog-pct">0% ผ่าน</span>
+  </div>
+  <div class="weak-wrap">
+    <div class="weak-title">หัวข้อที่ตอบผิดบ่อย</div>
+    <div class="weak-row" id="weak-row"><span class="wchip none">รอข้อมูล...</span></div>
+  </div>
+  <div class="list-header">
+    <span class="list-title">รายชื่อ</span>
+    <div class="sort-wrap">
+      <button class="sort-btn active" id="sort-time"  onclick="setSort('time')">ล่าสุด</button>
+      <button class="sort-btn"        id="sort-score" onclick="setSort('score')">คะแนน</button>
+      <button class="sort-btn"        id="sort-name"  onclick="setSort('name')">ชื่อ</button>
+    </div>
+  </div>
+  <div class="s-list" id="s-list"></div>
+  <div class="last-updated" id="last-updated"></div>
+  <button class="btn btn-red" onclick="closeSession()">ปิด Session</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ FIREBASE ══ -->
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import{getFirestore,collection,doc,setDoc,updateDoc,query,where,orderBy,onSnapshot,serverTimestamp,getDocs,deleteDoc}
+  from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+// ┌──────────────────────────────────────────────────┐
+// │  วาง Firebase Config ที่นี่                       │
+// └──────────────────────────────────────────────────┘
+const firebaseConfig={
+  apiKey:"AIzaSyB2rLc1FFlq_GgPpmKJfH6CkNWKlS1VeIE",
+  authDomain:"endu-training-center.firebaseapp.com"",
+  projectId:"endu-training-center",
+  storageBucket:"endu-training-center.firebasestorage.app",
+  messagingSenderId:"753650086986",
+  appId:"1:753650086986:web:554de37bee5ee25713a2b3"
+};
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+let sessionPin=null,unsubResults=null,sortMode="time";
+
+/* ── Open Session ── */
+window.openSession=async()=>{
+  const setKey=window._selectedSet;
+  if(!setKey)return;
+  const pin=String(Math.floor(1000+Math.random()*9000));
+  sessionPin=pin;
+  await setDoc(doc(db,"sessions",pin),{
+    quizKey:setKey,
+    quizName:window.QUIZ_SETS[setKey].name,
+    pin,
+    active:true,
+    createdAt:serverTimestamp()
+  });
+  document.getElementById("pin-display").textContent=pin;
+  document.getElementById("pin-hint").textContent=
+    "ชุด: "+window.QUIZ_SETS[setKey].name+" · แชร์ PIN นี้ให้นักเรียน";
+  document.getElementById("live-wrap").style.display="flex";
+  showScr("scr-session");
+  listenResults(pin);
+};
+
+/* ── Listen Results ── */
+function listenResults(pin){
+  if(unsubResults)unsubResults();
+  const q=query(collection(db,"results"),where("pin","==",pin),orderBy("submittedAt","desc"));
+  unsubResults=onSnapshot(q,snap=>{
+    const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderResults(rows);
+    document.getElementById("last-updated").textContent=
+      "อัปเดตล่าสุด "+new Date().toLocaleTimeString("th-TH");
+  });
+}
+
+/* ── Render Results ── */
+function renderResults(rows){
+  const total=rows.length,pass=rows.filter(r=>r.passed).length,fail=total-pass;
+  const avg=total?(rows.reduce((s,r)=>s+r.score,0)/total).toFixed(1):"-";
+  const pp=total?Math.round(pass/total*100):0;
+  document.getElementById("cnt-submit").textContent=total;
+  document.getElementById("cnt-pass").textContent=pass;
+  document.getElementById("cnt-fail").textContent=fail;
+  document.getElementById("avg-score").textContent=avg;
+  document.getElementById("prog-fill").style.width=pp+"%";
+  document.getElementById("prog-pct").textContent=pp+"% ผ่าน";
+  const tc={};rows.forEach(r=>(r.wrongTopics||[]).forEach(t=>{tc[t]=(tc[t]||0)+1;}));
+  const we=document.getElementById("weak-row");
+  if(!Object.keys(tc).length){we.innerHTML=`<span class="wchip none">${total===0?"รอข้อมูล...":"ยังไม่มีข้อผิด 🎉"}</span>`;}
+  else{we.innerHTML=Object.entries(tc).sort((a,b)=>b[1]-a[1]).map(([t,cnt])=>{
+    const p=Math.round(cnt/total*100);
+    return`<span class="wchip ${p>=50?"high":p>=25?"med":"low"}">${t} (${cnt}/${total})</span>`;
+  }).join("");}
+  const sorted=[...rows];
+  if(sortMode==="score")sorted.sort((a,b)=>b.score-a.score);
+  else if(sortMode==="name")sorted.sort((a,b)=>a.name.localeCompare(b.name,"th"));
+  const le=document.getElementById("s-list");
+  if(!total){le.innerHTML=`<div style="text-align:center;padding:40px 0;color:var(--gray3)">รอนักเรียนส่ง...</div>`;return;}
+  le.innerHTML=sorted.map((r,i)=>{
+    const cls=r.passed?"p":"f",time=r.submittedAt?.toDate?r.submittedAt.toDate().toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"}):"";
+    const ws=(r.wrongTopics||[]).length?"ผิดหัวข้อ: "+(r.wrongTopics||[]).join(", "):"ถูกทุกข้อ 🎉";
+    return`<div class="s-row ${r.passed?"pr":"fr"}">
+      <span class="s-rank">${i+1}</span>
+      <div class="s-info"><div class="s-name">${r.name}</div><div class="s-meta">${ws}</div></div>
+      <div class="s-right">
+        <div class="s-score ${cls}">${r.score}/${r.total||15}</div>
+        <div class="s-pct">${r.pct}%${time?" · "+time:""}</div>
+        <span class="s-badge ${cls}">${r.passed?"ผ่าน ✓":"ยังไม่ผ่าน"}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* ── Sort ── */
+window.setSort=(mode)=>{
+  sortMode=mode;
+  ["time","score","name"].forEach(m=>{
+    document.getElementById("sort-"+m).className="sort-btn"+(m===mode?" active":"");
+  });
+  if(unsubResults)unsubResults();
+  listenResults(sessionPin);
+};
+
+/* ── Close Session ── */
+window.closeSession=async()=>{
+  if(!confirm("ปิด Session PIN "+sessionPin+" หรือเปล่า?\nนักเรียนจะส่งข้อสอบเพิ่มไม่ได้อีก"))return;
+  await updateDoc(doc(db,"sessions",sessionPin),{active:false,closedAt:serverTimestamp()});
+  if(unsubResults){unsubResults();unsubResults=null;}
+  sessionPin=null;
+  document.getElementById("live-wrap").style.display="none";
+  window._selectedSet=null;
+  document.querySelectorAll(".quiz-card").forEach(c=>c.classList.remove("selected"));
+  document.getElementById("btn-open").disabled=true;
+  showToast("ปิด Session แล้ว");
+  showScr("scr-select");
+};
+
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.className="toast show";setTimeout(()=>{t.className="toast";},3500);}
+function showScr(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo({top:0});}
+window._showToast=showToast;
+</script>
+
+<!-- ══ QUIZ SETS + CARD BUILDER ══ -->
+<script>
+/* ════════════════════════════════════════════════════
+   เพิ่มชุดข้อสอบใหม่ที่นี่
+   ════════════════════════════════════════════════════ */
+window.QUIZ_SETS = {
+  basic1:{
+    name:"Basic H1",label:"BASIC",level:"H1",
+    desc:"แกะ iPhone & Android · เปลี่ยนแบต · เปลี่ยนจอ",
+    passLine:80,cardCls:"cb1",color:"#0D9E75",
+    passBg:"#E1F5EE",passColor:"#097A59",
+    qs:[
+      {cat:"เครื่องมือ",q:"ไขควงสำหรับถอดสกรู iPhone รุ่นใหม่คือชนิดใด?",ch:["Philips #00","Pentalobe P2","Torx T5","Flathead"],ans:1,ex:"iPhone ใช้สกรู Pentalobe (ดาว 5 แฉก) ต้องใช้ไขควง P2 โดยเฉพาะ"},
+      {cat:"เครื่องมือ",q:"Spudger ใช้ทำอะไร?",ch:["ถอดสกรู","งัดฝาและ connector โดยไม่ทำลายชิ้นส่วน","วัดแรงดัน","ตัดสาย"],ans:1,ex:"Spudger งัดและแยกชิ้นส่วนโดยไม่ขีดข่วนหรือ short วงจร"},
+      {cat:"สายแฟลต",q:"ZIF connector ถอดอย่างไรถูกต้อง?",ch:["ดึงตรงแรงๆ","เปิดฝาล็อกก่อน แล้วดึงสายออก","อุ่น heat gun","ตัดสาย"],ans:1,ex:"ต้องเปิดฝาล็อก (flip-lock) ก่อนเสมอ ถ้าดึงขณะล็อกอยู่สายขาดทันที"},
+      {cat:"iPhone",q:"เปิดจอ iPhone ribbon cable อยู่ด้านไหน ระวังอะไร?",ch:["ขวา เปิดเกิน 45° ขาด","ซ้าย เปิดเกิน 90° ขาด","บน ไม่ต้องระวัง","ไม่มี ribbon"],ans:1,ex:"Ribbon เชื่อมฝั่งซ้ายบน ถ้าเปิดเกิน 90° จะขาดทันที"},
+      {cat:"iPhone",q:"pull-tab กาวแบต iPhone ดึงอย่างไร?",ch:["ดึงตรงขึ้น","ดึงเฉียง 45° ลงช้าๆ","งัดด้วย spudger","อุ่นก่อนดึงตรง"],ans:1,ex:"ดึงเฉียง 45° ลงช้าๆ กาวยืดออกเองไม่ขาด"},
+      {cat:"Android",q:"ก่อนแกะ Android สิ่งสำคัญที่สุดต้องทำก่อนคืออะไร?",ch:["เปิด heat gun","ถ่ายรูป","ถอด SIM","ปิดเครื่องและถอดแบต"],ans:3,ex:"ต้องปิดเครื่องและถอดแบตก่อน ป้องกัน short circuit"},
+      {cat:"Android",q:"Android ที่ใช้กาวยึดฝาหลัง ทำอะไรก่อนเปิด?",ch:["ดึงแรงๆ","อุ่น heat gun ที่ขอบฝาก่อน แล้วงัดด้วย spudger","แช่น้ำ","ใช้มีดกรีด"],ans:1,ex:"กาวอ่อนตัวที่ 60-80°C ทั่วขอบฝา แล้วงัดเบาๆ"},
+      {cat:"ความปลอดภัย",q:"แบตลิเธียมอันตรายอย่างไรหากถูกทำลาย?",ch:["รั่วนิดหน่อย","ระเบิดและติดไฟได้ เกิด thermal runaway","ช็อตไฟ","หมดเร็ว"],ans:1,ex:"แบตลิเธียมมีสารเคมีติดไฟง่าย ถ้าถูกโก่ง แทง หรือบีบอัดอาจระเบิดในวินาที"},
+      {cat:"ความปลอดภัย",q:"ก่อนแตะสายแฟลตหรืออะไหล่ใดๆ ต้องทำอะไรก่อน?",ch:["ถอด SIM","ถอด connector แบตก่อนเสมอ","ปิดจอ","ถอดสกรูทั้งหมด"],ans:1,ex:"ถอด connector แบตก่อนเสมอ ถ้ายังต่อแบตอยู่การสัมผัสผิดจุดจะ short ทันที"},
+      {cat:"เปลี่ยนแบต",q:"หลังใส่แบตใหม่ ก่อนประกอบฝาหลัง ควรทำอะไรก่อน?",ch:["ประกอบทันที","เปิดเครื่องทดสอบก่อน","ใส่กาวก่อน","ไม่ต้องทดสอบ"],ans:1,ex:"ต้องเปิดทดสอบก่อนประกอบฝา จะได้แก้ปัญหาได้ง่ายกว่า"},
+      {cat:"เปลี่ยนจอ",q:"Suction cup ใช้ทำอะไรในการเปลี่ยนจอ?",ch:["ดูดฝุ่น","สร้างแรงดึงเพื่อเปิดจอ","ทำความสะอาด","ยึดเครื่อง"],ans:1,ex:"Suction cup สร้างแรงดึงช่วยเปิดจอโดยไม่ต้องงัดแรง ลดความเสี่ยงจอแตก"},
+      {cat:"เปลี่ยนจอ",q:"หลังต่อสายแฟลตจอใหม่แล้ว ต้องตรวจอะไร?",ch:["แค่ดูว่าติด","Touch ทุกจุด จอ สี brightness","แค่สี","ไม่ต้อง"],ans:1,ex:"ต้องตรวจ touch ทุกมุม ความสว่าง สี และ True Tone ก่อนประกอบ"},
+      {cat:"โครงสร้าง",q:"OLED กับ LCD ต่างกันในแง่การซ่อมอย่างไร?",ch:["แพงกว่าเท่านั้น","OLED บางและอ่อนแตกง่ายกว่า LCD ราคาสูงกว่า","LCD แตกง่ายกว่า","ไม่ต่าง"],ans:1,ex:"OLED บางและอ่อนไหวต่อแรงกดและความร้อนมากกว่า LCD ควรระวังเป็นพิเศษ"},
+      {cat:"เครื่องมือ",q:"Heat gun ควรใช้อุณหภูมิเท่าไรอุ่นกาวยึดจอ?",ch:["200-300°C","60-90°C","150-180°C","30-50°C"],ans:1,ex:"60-90°C เหมาะสำหรับกาวยึดจอและฝาหลัง ถ้าร้อนเกิน 100°C อาจทำลาย OLED"},
+      {cat:"ประกอบกลับ",q:"หลังประกอบเสร็จ ควรทดสอบอะไรก่อนส่งคืนลูกค้า?",ch:["แค่เปิดติด","Touch จอ ชาร์จ ปุ่ม กล้อง เสียง ครบทุกฟังก์ชัน","แค่จอและแบต","แค่ชาร์จ"],ans:1,ex:"ต้องทดสอบทุกฟังก์ชัน: Touch, จอ, ชาร์จ, ปุ่ม, กล้อง, ไมค์, ลำโพง, WiFi"},
+    ]
+  },
+  basic2:{
+    name:"Basic H2",label:"BASIC",level:"H2",
+    desc:"ไฟฟ้า · Multimeter · SMD · แผนผัง · Rework",
+    passLine:80,cardCls:"cb2",color:"#E8793C",
+    passBg:"#FAECE7",passColor:"#B85A1E",
+    qs:[
+      {cat:"DC vs AC",q:"วงจรจ่ายไฟของมือถือใช้กระแสประเภทใด?",ch:["AC ทั้งหมด","DC ทั้งหมด","ผสม AC และ DC","ขึ้นกับยี่ห้อ"],ans:1,ex:"วงจรมือถือทั้งหมดใช้ DC แบตเตอรี่เป็นตัวจ่าย DC ให้วงจร"},
+      {cat:"แรงดันแบตเตอรี่",q:"แบตชาร์จเต็มให้แรงดันกี่โวลต์?",ch:["3.6V","3.7V","4.2V","5.0V"],ans:2,ex:"แบตเต็ม 4.2V เมื่อลดมา 3.6V ใกล้หมดแล้ว"},
+      {cat:"DC vs AC",q:"สัญญาณส่วนใดของมือถือที่เป็น AC?",ch:["วงจรจ่ายไฟแบต","วงจร RF WiFi Bluetooth","CPU","LED"],ans:1,ex:"RF WiFi, Bluetooth, GPS, NFC และเสียงล้วนเป็น AC"},
+      {cat:"กฎโอห์ม",q:"U=5V, R=1000Ω กระแส I เท่ากับเท่าใด?",ch:["5 mA","50 mA","5 A","500 mA"],ans:0,ex:"I = 5 ÷ 1000 = 0.005A = 5mA"},
+      {cat:"Multimeter",q:"วัดแรงดัน DC บนบอร์ด หัววัดสีดำต่อที่จุดใด?",ch:["ขั้วบวกแบต","เปลือกโลหะ PCB (GND)","TP ใดก็ได้","VBAT"],ans:1,ex:"หัววัดดำต้องต่อที่ GND เสมอ"},
+      {cat:"Multimeter",q:"ทำไมใช้ Multimeter ดิจิทัลในการซ่อม?",ch:["ราคาถูก","Input Resistance สูง ไม่รบกวนวงจร","อ่านง่าย","วัดเร็ว"],ans:1,ex:"Multimeter ดิจิทัล Input Resistance สูงมาก กระทบวงจรน้อยที่สุด"},
+      {cat:"SMD",q:"ตัวต้านทาน SMD รหัส 681 มีค่าเท่าใด?",ch:["6.81Ω","68.1Ω","680Ω","6810Ω"],ans:2,ex:"681 = 68×10¹ = 680Ω"},
+      {cat:"SMD",q:"ตัวเก็บประจุ (C) มีหน้าที่หลักอะไร?",ch:["จำกัดกระแส","กรองสัญญาณและเก็บพลังงาน","เพิ่มความถี่","ส่ง RF"],ans:1,ex:"C กรองสัญญาณรบกวน เก็บพลังงาน แยก DC"},
+      {cat:"SMD",q:"ตัวเหนี่ยวนำ (L) ทำหน้าที่อะไร?",ch:["เก็บประจุ","กรองความถี่และจ่ายไฟเสถียร","ขยายเสียง","วัดอุณหภูมิ"],ans:1,ex:"L กรองความถี่ จ่ายไฟเสถียร ยับยั้งสัญญาณรบกวน"},
+      {cat:"แผนผัง",q:"NOSTUFF ในแผนผัง iPhone หมายความว่าอะไร?",ch:["ชิ้นส่วนเสียหาย","ตำแหน่งว่าง ไม่ได้ติดตั้ง","IC พิเศษ","จุดทดสอบ"],ans:1,ex:"NOSTUFF = ตำแหน่งที่ไม่ได้ติดตั้งชิ้นส่วนในรุ่นนั้น"},
+      {cat:"แผนผัง",q:"NC ในแผนผังวงจรหมายความว่าอย่างไร?",ch:["No Current","No Connection ขาที่ไม่ต่อสาย","Negative Current","Normal Circuit"],ans:1,ex:"NC = No Connection ขาที่ไม่เชื่อมต่อฟังก์ชันใดๆ"},
+      {cat:"แผนผัง",q:"Test Point TP/PP ใช้ทำอะไร?",ch:["เชื่อมแบต","วัดแรงดัน กระแส หรือสัญญาณ","ติด IC","ต่อสายแฟลต"],ans:1,ex:"TP ใช้วัดค่าสัญญาณเพื่อหาจุดเสีย"},
+      {cat:"อาการเสีย",q:"คู่สนทนาได้ยินเสียงเรามีเสียงดังรบกวน สาเหตุหลักมักมาจากอะไร?",ch:["ลำโพงเสียหาย","ไมค์เสื่อมหรือสัมผัสไม่ดี","CPU ไม่พอ","RF ขาด"],ans:1,ex:"เสียงดังรบกวนส่วนใหญ่เกิดจากไมค์เสื่อมหรือสัมผัสไม่ดี"},
+      {cat:"อาการเสีย",q:"เปลี่ยนไมค์ สิ่งที่ต้องระวังที่สุดคืออะไร?",ch:["ความไวสูงสุด","ไม่ให้ขั้ว +/- กลับ","ใช้ flux มาก","400°C"],ans:1,ex:"ไมค์กลับขั้วจะไม่มีสัญญาณออกหรือเสียงเบา"},
+      {cat:"อาการเสีย",q:"ลำโพงไม่มีเสียง ขั้นตอนแรกที่ควรทำคืออะไร?",ch:["เปลี่ยนเมนบอร์ด","อัปเดต Firmware","เปลี่ยนลำโพงก่อน ถ้ายังไม่ดีค่อยตรวจวงจร","ถอดแบตทิ้ง"],ans:2,ex:"เปลี่ยนลำโพงก่อนเสมอ ส่วนใหญ่ลำโพงเสียหายโดยตรง"},
+    ]
+  },
+  adv1:{
+    name:"Advance H1",label:"ADVANCE",level:"H1",
+    desc:"Power · PMIC · ชาร์จ · Baseband · เปิดเครื่อง",
+    passLine:75,cardCls:"ca1",color:"#7F77DD",
+    passBg:"#EEEDFE",passColor:"#534AB7",
+    qs:[
+      {cat:"Power",q:"วงจรเปิดเครื่องเริ่มต้นจากอะไร?",ch:["CPU สั่ง PMIC","กดปุ่ม → PWRKEY → PMIC จ่ายไฟหลัก","แบตจ่ายโดยตรง","Baseband เริ่มก่อน"],ans:1,ex:"กดปุ่ม → สัญญาณ PWRKEY ถึง PMIC → PMIC จ่ายไฟ rail → CPU boot → OS"},
+      {cat:"Power",q:"PMIC ทำหน้าที่อะไร?",ch:["ควบคุม RF","จัดการแรงดันและกระแสในระบบ","เก็บข้อมูล","ประมวลผล"],ans:1,ex:"PMIC = Power Management IC แปลงและจัดการแรงดันให้ทุกส่วนของมือถือ"},
+      {cat:"ชาร์จ",q:"ชาร์จไม่เข้า ขั้นตอนแรกที่ควรตรวจคืออะไร?",ch:["เปลี่ยน PMIC","ตรวจ port สาย และแรงดัน VBUS ก่อน","รีเซ็ต","เปลี่ยนแบต"],ans:1,ex:"เริ่มจากส่วนที่เข้าถึงง่าย: port, สาย, VBUS แล้วค่อยตรวจ IC ชาร์จ"},
+      {cat:"ชาร์จ",q:"VBUS ในวงจรชาร์จ USB คือแรงดันเท่าไร?",ch:["3.7V","4.2V","5V หรือสูงกว่าถ้า PD","12V"],ans:2,ex:"VBUS ปกติ 5V สำหรับชาร์จปกติ หรือสูงกว่าถ้าใช้ USB-PD"},
+      {cat:"เปิดเครื่อง",q:"กระแสขึ้นแล้วตก (spike แล้วกลับ 0) แสดงถึงอะไร?",ch:["แบตหมด","CPU boot ล้มเหลวซ้ำๆ อาจ NAND หรือ CPU","ชาร์จปกติ","ลำโพงเสีย"],ans:1,ex:"Pattern นี้คือ CPU พยายาม boot ล้มเหลว อาจเกิดจาก NAND เสีย หรือไฟ CPU ไม่พอ"},
+      {cat:"เปิดเครื่อง",q:"กระแสสูงค้าง 500mA+ แสดงถึงอะไร?",ch:["ชาร์จไว","Short circuit ชิ้นส่วนลัดวงจร","ปกติ","Baseband ทำงาน"],ans:1,ex:"กระแสสูงค้างแสดงถึง short circuit ต้องหาชิ้นส่วนที่ร้อนผิดปกติ"},
+      {cat:"Power",q:"LDO คืออะไร?",ch:["Low Data Output","Low Dropout Regulator ปรับแรงดันแบบสูญเสียต่ำ","Large Display Output","Long Duration"],ans:1,ex:"LDO แปลงแรงดันสูงเป็นต่ำ เหมาะกับโหลดเล็กที่ต้องการเสถียร"},
+      {cat:"การวัด",q:"ค่าความต้านทานถึง GND ที่บ่งบอก short circuit คือเท่าไร?",ch:["มากกว่า 100kΩ","น้อยกว่า 10Ω หรือใกล้ 0","50Ω","1MΩ"],ans:1,ex:"ค่าน้อยกว่า 10Ω หรือ 0Ω แสดง short circuit ค่าปกติควรอยู่หลัก kΩ ขึ้นไป"},
+      {cat:"Baseband",q:"อาการไม่มีสัญญาณมักเกิดจากอะไร?",ch:["แบตหมด","Baseband IC สายอากาศ หรือ RF IC","จอเสีย","ลำโพง"],ans:1,ex:"ไม่มีสัญญาณมักเกิดจาก Baseband IC เสีย สายอากาศหัก หรือ RF IC เสีย"},
+      {cat:"การซ่อม",q:"Heat Method ใช้หาอะไร?",ch:["แรงดันสูง","ชิ้นส่วน short โดยดูจากตัวที่ร้อนผิดปกติ","วัดกระแส","ทดสอบ RF"],ans:1,ex:"ชิ้นส่วนที่ short มีกระแสผ่านมากจนร้อน สังเกตได้ด้วยมือหลัง"},
+      {cat:"Power",q:"Buck converter ต่างจาก LDO อย่างไร?",ch:["Buck ใหญ่กว่า","Buck ใช้การสวิตชิ่ง ประหยัดพลังงานกว่า","LDO ดีกว่า","ไม่ต่าง"],ans:1,ex:"Buck ใช้การสวิตชิ่งความถี่สูง ประหยัดพลังงานกว่า LDO ที่สูญเสียเป็นความร้อน"},
+      {cat:"ชาร์จ",q:"USB-PD ทำงานอย่างไร?",ch:["เพิ่มแค่กระแส","เจรจา V และ I ผ่าน CC pin ของ USB-C","ใช้สายพิเศษ","เพิ่มความถี่"],ans:1,ex:"USB-PD ใช้ CC pin เจรจา voltage (5/9/12/20V) และ current"},
+      {cat:"การวัด",q:"วัด diode mode หัวแดงต่อ GND ได้ค่าอะไร?",ch:["Voltage forward","Diode reverse value","0V","∞"],ans:1,ex:"หัวแดงต่อ GND = ทิศทางกลับของไดโอด ปกติได้ OL หรือค่าสูง"},
+      {cat:"เปิดเครื่อง",q:"NAND Flash ทำหน้าที่อะไร?",ch:["จ่ายไฟ","เก็บ OS ข้อมูลผู้ใช้และ Firmware","รับสัญญาณ RF","ประมวลผลภาพ"],ans:1,ex:"NAND Flash คือ storage หลัก เก็บ iOS/Android, แอป และข้อมูลทั้งหมด"},
+      {cat:"การซ่อม",q:"Reballing คืออะไร?",ch:["ล้างบอร์ด","ถอด BGA IC แล้วติดลูกบัดกรีใหม่ก่อนติดกลับ","เปลี่ยนสาย RF","อ่านแผนผัง"],ans:1,ex:"Reballing = ถอด IC BGA ขูดลูก tin เก่า ติดลูก tin ใหม่ครบ แล้วนำ IC กลับไปติด"},
+    ]
+  },
+  adv2:{
+    name:"Advance H2",label:"ADVANCE",level:"H2",
+    desc:"CPU · NAND · RF · Touch · สัญญาณ I2C SPI",
+    passLine:75,cardCls:"ca2",color:"#3498DB",
+    passBg:"#EBF5FB",passColor:"#1F6FAB",
+    qs:[
+      {cat:"CPU",q:"Application Processor (AP/CPU) ทำหน้าที่อะไร?",ch:["จ่ายไฟ","ประมวลผลหลัก ควบคุม OS แอป และ IO ทั้งหมด","รับสัญญาณ","เก็บข้อมูล"],ans:1,ex:"AP คือ CPU หลักของมือถือ ควบคุม OS แอป กล้อง จอ และ IO ทั้งหมด"},
+      {cat:"CPU",q:"Thermal pad บน CPU ทำหน้าที่อะไร?",ch:["ป้องกัน ESD","ระบายความร้อนจาก CPU ออกสู่โครง","เพิ่มสัญญาณ","กันน้ำ"],ans:1,ex:"Thermal pad นำความร้อนจาก CPU ออกสู่โครงโลหะที่ทำหน้าที่ heatsink หลัก"},
+      {cat:"NAND",q:"Boot loop (ติด Logo แล้วดับ) มักสัมพันธ์กับอะไร?",ch:["ลำโพงเสีย","NAND เสีย หรือ OS เสียหาย","แบตหมด","กล้องเสีย"],ans:1,ex:"Boot loop มักเกิดจาก NAND เสีย หรือ Firmware เสียหาย"},
+      {cat:"RF",q:"RF Front End Module ทำหน้าที่อะไร?",ch:["ประมวลผลภาพ","ขยายและกรองสัญญาณ RF ก่อนส่งและหลังรับจากสายอากาศ","จัดการแบต","ควบคุมจอ"],ans:1,ex:"RF FEM ขยายสัญญาณส่ง (PA) กรองความถี่ (filter) สวิตช์สัญญาณระหว่างแบนด์"},
+      {cat:"Touch",q:"Capacitive Touch ทำงานโดยหลักการใด?",ch:["วัดแรงกด","ตรวจจับการเปลี่ยน capacitance เมื่อนิ้วสัมผัส","ใช้ infrared","วัดความต้านทาน"],ans:1,ex:"ตรวจจับการเปลี่ยน capacitance เมื่อนิ้ว (ตัวนำ) สัมผัสกระจก"},
+      {cat:"Touch",q:"Touch ไม่ตอบสนองบางบริเวณ สาเหตุที่เป็นไปได้คืออะไร?",ch:["แบตหมด","กระจกแตกกดทับ digitizer หรือ touch IC เสีย หรือสายแฟลตหลวม","ไฟ CPU ต่ำ","เสียงผิดปกติ"],ans:1,ex:"Touch บางบริเวณไม่ทำงาน อาจเกิดจากกระจกแตกกดทับ สายหลวม หรือ touch IC เสีย"},
+      {cat:"สัญญาณ",q:"I2C ใช้สายสัญญาณกี่เส้น?",ch:["1 เส้น","2 เส้น (SDA และ SCL)","4 เส้น","8 เส้น"],ans:1,ex:"I2C ใช้ 2 สาย: SDA (data) และ SCL (clock) สื่อสารแบบ half-duplex"},
+      {cat:"สัญญาณ",q:"SPI ต่างจาก I2C อย่างไร?",ch:["SPI ช้ากว่า","SPI ใช้ 4 สาย เร็วกว่า full-duplex","SPI ง่ายกว่า","ไม่ต่าง"],ans:1,ex:"SPI ใช้ 4 สาย (MOSI, MISO, CLK, CS) ส่ง-รับพร้อมกัน เหมาะกับ flash memory"},
+      {cat:"RF",q:"อาการสัญญาณขึ้นๆ ลงๆ มักเกิดจากอะไร?",ch:["แบตหมด","สายอากาศหลวม RF IC เสีย หรือ PA เสื่อม","กล้องเสีย","จอผิดปกติ"],ans:1,ex:"สัญญาณไม่เสถียรส่วนใหญ่มาจาก antenna connector หลวม หรือ PA เสื่อม"},
+      {cat:"NAND",q:"DFU Mode บน iPhone ใช้ทำอะไร?",ch:["Backup","Restore Firmware ผ่าน iTunes โดยข้าม iBoot","ล็อคเครื่อง","เช็ค IMEI"],ans:1,ex:"DFU Mode ให้ iTunes โหลด Firmware ใหม่ทั้งหมดโดยข้าม bootloader ปัจจุบัน"},
+      {cat:"การซ่อม",q:"Jumper wire ใช้ทำอะไร?",ch:["เพิ่มแรงดัน","ต่อวงจรที่เส้นทองแดง PCB ขาด","ทดสอบสัญญาณ","ล้างบอร์ด"],ans:1,ex:"Jumper wire เดินสายใหม่ผ่านรู via ทดแทนเส้นทองแดงที่ขาดหรือถูกทำลาย"},
+      {cat:"CPU",q:"eMMC และ UFS ต่างกันอย่างไร?",ch:["eMMC ใหม่กว่า","UFS เร็วกว่า eMMC มาก รองรับ full-duplex","ราคาเท่ากัน","ใช้แทนกันได้"],ans:1,ex:"UFS เร็วกว่า eMMC เพราะใช้ interface serial full-duplex"},
+      {cat:"Touch",q:"Face ID ใช้เทคโนโลยีใด?",ch:["กล้องธรรมดา","Structured Light โปรเจกต์จุด IR 30,000 จุด + กล้อง IR","Fingerprint","2D Camera"],ans:1,ex:"TrueDepth ฉาย dot pattern IR 30,000 จุด สร้าง 3D map เทียบกับข้อมูลที่เก็บ"},
+      {cat:"การวัด",q:"Oscilloscope ใช้วัดอะไรในงานซ่อมขั้นสูง?",ch:["ความต้านทาน","รูปคลื่นสัญญาณ voltage waveform ตามเวลา","กระแสเฉลี่ย","อุณหภูมิ"],ans:1,ex:"Oscilloscope แสดงรูปคลื่นสัญญาณตามเวลาจริง ตรวจ clock, data, PWM"},
+      {cat:"สัญญาณ",q:"UART ใช้ทำอะไรในงานซ่อม?",ch:["Universal Analog Rectifier","Universal Async Receiver-Transmitter ใช้ดู debug log","Unified Address Register","Ultra Adaptive Radio"],ans:1,ex:"UART ใช้ 2 สาย (TX, RX) ในงานซ่อมใช้อ่าน debug log เช่น boot sequence error"},
+    ]
+  }
+};
+
+/* ── Build cards ── */
+window._selectedSet=null;
+const grid=document.getElementById("quiz-grid");
+Object.entries(window.QUIZ_SETS).forEach(([key,set])=>{
+  const d=document.createElement("div");
+  d.className="quiz-card "+set.cardCls;
+  d.id="card-"+key;
+  d.onclick=()=>{
+    window._selectedSet=key;
+    document.querySelectorAll(".quiz-card").forEach(c=>c.classList.remove("selected"));
+    d.classList.add("selected");
+    const btn=document.getElementById("btn-open");
+    btn.disabled=false;
+    btn.style.background=set.color;
+    btn.style.color="#fff";
+  };
+  d.innerHTML=`
+    <div class="qc-level">${set.label}</div>
+    <div class="qc-name">${set.level}</div>
+    <div class="qc-desc">${set.desc}</div>
+    <span class="qc-pass" style="background:${set.passBg};color:${set.passColor}">เกณฑ์ผ่าน ${set.passLine}% · ${set.qs.length} ข้อ</span>`;
+  grid.appendChild(d);
+});
+</script>
+</body>
+</html>
