@@ -50,6 +50,9 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .choice.correct{border-color:var(--green);background:var(--greenDark);}.choice.correct .c-letter{background:var(--green);color:#fff;}
 .choice.wrong{border-color:var(--red);background:var(--redDark);}.choice.wrong .c-letter{background:var(--red);color:#fff;}
 .choice.show-ans{border-color:var(--green);background:var(--greenDark);opacity:.6;}.choice.show-ans .c-letter{background:var(--green);color:#fff;}
+.choice.selected{border-color:var(--orange);background:var(--bg3);}.choice.selected .c-letter{background:var(--orange);color:var(--bg);}
+.btn-confirm{display:none;width:100%;background:var(--orange);color:var(--bg);border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;font-family:'Sarabun',sans-serif;cursor:pointer;transition:background .2s;margin-bottom:10px;}
+.btn-confirm.show{display:block;}.btn-confirm:hover{background:var(--orangeD);}.btn-confirm:disabled{background:var(--bg4);color:var(--gray2);cursor:not-allowed;}
 .feedback{display:none;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.65;}
 .feedback.show{display:block;animation:fadein .2s ease;}
 .feedback.ok{background:var(--greenDark);border:1px solid var(--green);color:#7FE5A0;}
@@ -308,6 +311,8 @@ window.startQuiz = () => {
 };
 
 /* ════ Quiz ════ */
+let selectedIdx = null;
+
 function renderQ() {
   const q = activeSet.qs[curQ], tot = activeSet.qs.length;
   $("prog-bar").style.width = (curQ / tot * 100) + "%";
@@ -326,14 +331,29 @@ function renderQ() {
           <span class="c-text">${c}</span>
         </button>`).join("")}
     </div>
+    <button class="btn-confirm" id="btn-confirm" onclick="confirmAnswer()" disabled>
+      ยืนยันคำตอบ
+    </button>
     <div class="feedback" id="fb"></div>
     <button class="btn-next" id="btn-next" onclick="nextQ()">
       ${curQ < tot - 1 ? "ข้อถัดไป →" : "ดูผลคะแนน →"}
     </button>`;
+  selectedIdx = null;
 }
 
 window.pick = (idx) => {
-  const q = activeSet.qs[curQ], ok = idx === q.ans;
+  selectedIdx = idx;
+  document.querySelectorAll(".choice").forEach((b,i) => {
+    b.className = i === idx ? "choice selected" : "choice";
+  });
+  const cb = $("btn-confirm");
+  cb.disabled = false;
+  cb.className = "btn-confirm show";
+};
+
+window.confirmAnswer = () => {
+  if (selectedIdx === null) return;
+  const q = activeSet.qs[curQ], idx = selectedIdx, ok = idx === q.ans;
   if (ok) score++;
   answers.push({ qIdx: curQ, chosen: idx, ok });
   document.querySelectorAll(".choice").forEach((b,i) => {
@@ -341,7 +361,10 @@ window.pick = (idx) => {
     if (i === idx && ok)         b.className = "choice correct";
     else if (i === idx && !ok)   b.className = "choice wrong";
     else if (!ok && i === q.ans) b.className = "choice show-ans";
+    else                          b.className = "choice";
   });
+  $("btn-confirm").className = "btn-confirm";
+  $("btn-confirm").disabled = true;
   const fb = $("fb");
   fb.className = ok ? "feedback show ok" : "feedback show ng";
   fb.innerHTML = ok
