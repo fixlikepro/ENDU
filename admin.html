@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ENDU Admin — จัดการคลังข้อสอบ</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+:root{--bg:#0D0B09;--bg2:#1A1714;--bg3:#222018;--bg4:#2C2820;--orange:#E8793C;--orangeD:#B85A1E;--white:#F5F0EB;--gray1:#C8C0B8;--gray2:#7A736C;--gray3:#3A3530;--green:#27AE60;--red:#E74C3C;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);min-height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bg4);position:sticky;top:0;background:var(--bg);z-index:20;}
+.brand{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--orange);}
+.user-tag{font-size:12px;color:var(--gray2);}
+.user-tag a{color:var(--orange);text-decoration:none;margin-left:10px;}
+
+main{max-width:1100px;margin:0 auto;padding:28px 20px 80px;}
+h1{font-size:18px;color:var(--orange);margin-bottom:6px;}
+.sub{font-size:13px;color:var(--gray2);margin-bottom:24px;}
+
+/* login */
+.login-box{max-width:380px;margin:80px auto;background:var(--bg2);border:1px solid var(--bg4);border-radius:12px;padding:28px 24px;}
+.login-box h2{font-size:18px;margin-bottom:6px;}
+.login-box p{font-size:13px;color:var(--gray2);margin-bottom:18px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;color:var(--gray2);margin-bottom:6px;letter-spacing:.04em;}
+.input{width:100%;background:var(--bg3);border:1.5px solid var(--bg4);border-radius:8px;padding:11px 14px;color:var(--white);font-family:inherit;font-size:14px;outline:none;}
+.input:focus{border-color:var(--orange);}
+.btn{display:block;width:100%;background:var(--orange);color:var(--bg);border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn:hover{background:var(--orangeD);}
+.btn:disabled{background:var(--bg4);color:var(--gray2);cursor:not-allowed;}
+.btn-ghost{background:var(--bg3);color:var(--white);border:1px solid var(--bg4);}
+.btn-ghost:hover{background:var(--bg4);}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-danger:hover{background:#C0392B;}
+.err{background:#2C0A0A;border:1px solid var(--red);border-radius:6px;padding:8px 12px;font-size:12px;margin-top:10px;color:#F5A0A0;display:none;}
+.err.show{display:block;}
+
+/* list */
+.set-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-bottom:24px;}
+.set-card{background:var(--bg2);border:1px solid var(--bg4);border-radius:10px;padding:16px;cursor:pointer;transition:border-color .2s;}
+.set-card:hover{border-color:var(--orange);}
+.set-card.inactive{opacity:.55;}
+.sc-label{font-size:11px;letter-spacing:.1em;color:var(--gray2);margin-bottom:6px;}
+.sc-name{font-size:16px;font-weight:700;margin-bottom:4px;}
+.sc-meta{font-size:12px;color:var(--gray1);margin-bottom:8px;}
+.sc-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.tag{font-size:10px;background:var(--bg4);padding:3px 8px;border-radius:10px;color:var(--gray1);}
+.tag.on{background:var(--green);color:#fff;}
+.tag.off{background:var(--gray3);color:var(--gray1);}
+
+/* edit */
+.edit-meta{background:var(--bg2);border:1px solid var(--bg4);border-radius:10px;padding:18px;margin-bottom:18px;}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
+.meta-grid .field{margin:0;}
+.input-small{font-size:13px;padding:8px 11px;}
+
+.q-list{display:flex;flex-direction:column;gap:14px;}
+.q-row{background:var(--bg2);border:1px solid var(--bg4);border-radius:10px;padding:16px;position:relative;}
+.q-num{position:absolute;top:14px;right:16px;font-size:11px;color:var(--gray2);font-family:'IBM Plex Mono',monospace;}
+.q-row .field label{font-size:11px;}
+.q-row .input{font-size:13px;padding:9px 12px;}
+.q-row textarea.input{min-height:60px;resize:vertical;font-family:inherit;}
+.choice-row{display:flex;gap:10px;align-items:center;margin-bottom:6px;}
+.choice-row input[type=radio]{accent-color:var(--orange);}
+.choice-row .input{flex:1;}
+.choice-letter{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gray2);width:14px;}
+.q-actions{display:flex;justify-content:flex-end;margin-top:10px;}
+.q-actions button{font-size:12px;padding:6px 12px;width:auto;}
+
+.bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--bg4);padding:14px 20px;display:flex;gap:10px;align-items:center;margin:24px -20px 0;}
+.bar .info{flex:1;font-size:12px;color:var(--gray2);}
+.bar .btn{width:auto;padding:10px 18px;margin:0;}
+
+.toast{position:fixed;top:20px;right:20px;background:var(--bg2);border:1px solid var(--orange);border-radius:8px;padding:12px 16px;font-size:13px;display:none;z-index:50;}
+.toast.show{display:block;}
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">ENDU · ADMIN</div>
+  <div class="user-tag" id="user-tag"></div>
+</div>
+
+<!-- LOGIN -->
+<div id="scr-login">
+  <div class="login-box">
+    <h2>เข้าระบบ Admin</h2>
+    <p>เฉพาะอาจารย์ของโรงเรียน ENDU</p>
+    <div class="field"><label>อีเมล</label><input class="input" id="email" type="email" autocomplete="email"></div>
+    <div class="field"><label>รหัสผ่าน</label><input class="input" id="pw" type="password" autocomplete="current-password"></div>
+    <button class="btn" onclick="doLogin()">เข้าระบบ</button>
+    <div class="err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- LIST -->
+<main id="scr-list" class="hidden">
+  <h1>คลังข้อสอบ</h1>
+  <p class="sub">เลือกชุดเพื่อแก้ไข หรือกด "เพิ่มชุดใหม่"</p>
+  <button class="btn" style="width:auto;padding:10px 18px;margin-bottom:18px;" onclick="createNewSet()">+ เพิ่มชุดข้อสอบใหม่</button>
+  <div class="set-grid" id="set-grid"></div>
+</main>
+
+<!-- EDIT -->
+<main id="scr-edit" class="hidden">
+  <button class="btn btn-ghost" style="width:auto;padding:8px 14px;margin-bottom:14px;" onclick="goBack()">← กลับ</button>
+  <h1 id="edit-title">แก้ไขชุดข้อสอบ</h1>
+  <p class="sub" id="edit-id"></p>
+
+  <div class="edit-meta">
+    <div class="meta-grid">
+      <div class="field"><label>ชื่อชุด (name)</label><input class="input input-small" id="m-name"></div>
+      <div class="field"><label>ป้าย (label)</label><input class="input input-small" id="m-label" placeholder="BASIC"></div>
+      <div class="field"><label>ระดับ (level)</label><input class="input input-small" id="m-level" placeholder="H1"></div>
+      <div class="field"><label>คำอธิบาย (desc)</label><input class="input input-small" id="m-desc"></div>
+      <div class="field"><label>เกณฑ์ผ่าน %</label><input class="input input-small" id="m-passLine" type="number" min="0" max="100"></div>
+      <div class="field"><label>ลำดับ</label><input class="input input-small" id="m-order" type="number"></div>
+      <div class="field"><label>สีหลัก (color)</label><input class="input input-small" id="m-color" placeholder="#E8793C"></div>
+      <div class="field"><label>CSS class (cardCls)</label><input class="input input-small" id="m-cardCls" placeholder="cb1"></div>
+      <div class="field"><label>passBg</label><input class="input input-small" id="m-passBg"></div>
+      <div class="field"><label>passColor</label><input class="input input-small" id="m-passColor"></div>
+      <div class="field"><label>badgeBg</label><input class="input input-small" id="m-badgeBg"></div>
+      <div class="field"><label>badgeColor</label><input class="input input-small" id="m-badgeColor"></div>
+      <div class="field"><label>เปิดใช้งาน</label><select class="input input-small" id="m-active"><option value="true">เปิด</option><option value="false">ปิด (ซ่อน)</option></select></div>
+    </div>
+  </div>
+
+  <h2 style="font-size:15px;margin:18px 0 10px;color:var(--gray1);">ข้อสอบ (<span id="q-count">0</span> ข้อ)</h2>
+  <div class="q-list" id="q-list"></div>
+  <button class="btn btn-ghost" style="width:auto;padding:10px 18px;margin-top:14px;" onclick="addQuestion()">+ เพิ่มข้อใหม่</button>
+
+  <div class="bar">
+    <div class="info" id="save-info"></div>
+    <button class="btn btn-ghost" onclick="goBack()">ยกเลิก</button>
+    <button class="btn" onclick="saveSet()">บันทึก</button>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import{getFirestore,collection,doc,setDoc,getDoc,getDocs,query,orderBy,deleteDoc}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyB2rLc1FFlq_GgPpmKJfH6CkNWKlS1VeIE",
+  authDomain:"endu-training-center.firebaseapp.com",
+  projectId:"endu-training-center",
+  storageBucket:"endu-training-center.firebasestorage.app",
+  messagingSenderId:"753650086986",
+  appId:"1:753650086986:web:554de37bee5ee25713a2b3"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+const $=id=>document.getElementById(id);
+const show=id=>{["scr-login","scr-list","scr-edit"].forEach(s=>$(s).classList.toggle("hidden",s!==id));};
+const toast=msg=>{const t=$("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000);};
+
+let editingId=null;
+let editingData=null;
+
+/* ════ Auth ════ */
+onAuthStateChanged(auth,user=>{
+  if(user){
+    $("user-tag").innerHTML=user.email+' · <a href="#" onclick="doLogout();return false;">ออก</a>';
+    show("scr-list");
+    loadList();
+  }else{
+    $("user-tag").innerHTML="";
+    show("scr-login");
+  }
+});
+
+window.doLogin=async()=>{
+  $("login-err").classList.remove("show");
+  try{
+    await signInWithEmailAndPassword(auth,$("email").value.trim(),$("pw").value);
+  }catch(e){
+    $("login-err").textContent="เข้าระบบไม่สำเร็จ: "+e.code;
+    $("login-err").classList.add("show");
+  }
+};
+window.doLogout=()=>signOut(auth);
+
+/* ════ List ════ */
+async function loadList(){
+  const grid=$("set-grid");
+  grid.innerHTML='<div style="grid-column:1/-1;color:var(--gray2);padding:20px;text-align:center;">กำลังโหลด...</div>';
+  try{
+    const snap=await getDocs(query(collection(db,"quizSets"),orderBy("order")));
+    grid.innerHTML="";
+    if(snap.empty){
+      grid.innerHTML='<div style="grid-column:1/-1;color:var(--gray2);padding:20px;text-align:center;">ยังไม่มีชุดข้อสอบ — กด "เพิ่มชุดใหม่"</div>';
+      return;
+    }
+    snap.forEach(d=>{
+      const s=d.data();
+      const c=document.createElement("div");
+      c.className="set-card"+(s.active===false?" inactive":"");
+      c.onclick=()=>openEdit(d.id,s);
+      c.innerHTML=`
+        <div class="sc-label" style="color:${s.color||'var(--gray2)'}">${s.label||""} ${s.level||""}</div>
+        <div class="sc-name">${s.name||"(ไม่มีชื่อ)"}</div>
+        <div class="sc-meta">${s.desc||""}</div>
+        <div class="sc-tags">
+          <span class="tag">${(s.qs||[]).length} ข้อ</span>
+          <span class="tag">ผ่าน ${s.passLine||0}%</span>
+          <span class="tag ${s.active===false?'off':'on'}">${s.active===false?'ปิด':'เปิด'}</span>
+        </div>`;
+      grid.appendChild(c);
+    });
+  }catch(e){
+    grid.innerHTML='<div style="grid-column:1/-1;color:#F5A0A0;padding:20px;text-align:center;">โหลดไม่สำเร็จ: '+e.message+'</div>';
+  }
+}
+
+window.createNewSet=()=>{
+  const id=prompt("ตั้ง ID ชุดข้อสอบ (ตัวอักษร a-z, ตัวเลข เช่น basic3, pro2)");
+  if(!id||!/^[a-z0-9_-]+$/.test(id)){toast("ID ไม่ถูกต้อง");return;}
+  editingId=id;
+  editingData={
+    name:"ชุดใหม่",label:"BASIC",level:"H1",desc:"",
+    passLine:80,color:"#E8793C",cardCls:"cb1",
+    passBg:"#FAECE7",passColor:"#B85A1E",
+    badgeBg:"#FAECE7",badgeColor:"#B85A1E",
+    active:true,order:99,qs:[]
+  };
+  renderEdit();
+};
+
+/* ════ Edit ════ */
+function openEdit(id,data){
+  editingId=id;
+  editingData=JSON.parse(JSON.stringify(data));
+  renderEdit();
+}
+
+function renderEdit(){
+  $("edit-title").textContent="แก้ไข: "+(editingData.name||editingId);
+  $("edit-id").textContent="ID: "+editingId;
+  $("m-name").value=editingData.name||"";
+  $("m-label").value=editingData.label||"";
+  $("m-level").value=editingData.level||"";
+  $("m-desc").value=editingData.desc||"";
+  $("m-passLine").value=editingData.passLine||80;
+  $("m-order").value=editingData.order||99;
+  $("m-color").value=editingData.color||"";
+  $("m-cardCls").value=editingData.cardCls||"";
+  $("m-passBg").value=editingData.passBg||"";
+  $("m-passColor").value=editingData.passColor||"";
+  $("m-badgeBg").value=editingData.badgeBg||"";
+  $("m-badgeColor").value=editingData.badgeColor||"";
+  $("m-active").value=editingData.active===false?"false":"true";
+  renderQs();
+  show("scr-edit");
+  window.scrollTo({top:0});
+}
+
+function renderQs(){
+  const list=$("q-list");
+  list.innerHTML="";
+  const qs=editingData.qs||[];
+  $("q-count").textContent=qs.length;
+  qs.forEach((q,i)=>{
+    const row=document.createElement("div");
+    row.className="q-row";
+    row.innerHTML=`
+      <div class="q-num">#${i+1}</div>
+      <div class="field"><label>หัวข้อ (cat)</label><input class="input input-small q-cat" value="${escapeHtml(q.cat||"")}"></div>
+      <div class="field"><label>คำถาม (q)</label><textarea class="input input-small q-q">${escapeHtml(q.q||"")}</textarea></div>
+      <div class="field"><label>ตัวเลือก (ติ๊กตัวที่ถูก)</label>
+        ${[0,1,2,3].map(j=>`
+          <div class="choice-row">
+            <span class="choice-letter">${"ABCD"[j]}</span>
+            <input type="radio" name="ans-${i}" ${q.ans===j?"checked":""} data-idx="${j}">
+            <input class="input input-small q-ch" data-idx="${j}" value="${escapeHtml((q.ch||[])[j]||"")}">
+          </div>`).join("")}
+      </div>
+      <div class="field"><label>คำอธิบาย (ex)</label><textarea class="input input-small q-ex">${escapeHtml(q.ex||"")}</textarea></div>
+      <div class="field"><label>URL รูป (img — ใส่หรือเว้นว่าง)</label><input class="input input-small q-img" value="${escapeHtml(q.img||"")}"></div>
+      <div class="q-actions"><button class="btn btn-danger" onclick="deleteQ(${i})">ลบข้อนี้</button></div>`;
+    list.appendChild(row);
+  });
+}
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+
+window.addQuestion=()=>{
+  editingData.qs=editingData.qs||[];
+  editingData.qs.push({cat:"",q:"",ch:["","","",""],ans:0,ex:"",img:""});
+  renderQs();
+  window.scrollTo({top:document.body.scrollHeight});
+};
+
+window.deleteQ=(i)=>{
+  if(!confirm("ลบข้อ "+(i+1)+"?"))return;
+  editingData.qs.splice(i,1);
+  renderQs();
+};
+
+window.goBack=()=>{
+  if(confirm("ออกโดยไม่บันทึก?")){editingId=null;editingData=null;loadList();show("scr-list");}
+};
+
+window.saveSet=async()=>{
+  // collect metadata
+  editingData.name=$("m-name").value.trim();
+  editingData.label=$("m-label").value.trim();
+  editingData.level=$("m-level").value.trim();
+  editingData.desc=$("m-desc").value.trim();
+  editingData.passLine=parseInt($("m-passLine").value)||80;
+  editingData.order=parseInt($("m-order").value)||99;
+  editingData.color=$("m-color").value.trim();
+  editingData.cardCls=$("m-cardCls").value.trim();
+  editingData.passBg=$("m-passBg").value.trim();
+  editingData.passColor=$("m-passColor").value.trim();
+  editingData.badgeBg=$("m-badgeBg").value.trim();
+  editingData.badgeColor=$("m-badgeColor").value.trim();
+  editingData.active=$("m-active").value==="true";
+
+  // collect questions
+  const rows=document.querySelectorAll(".q-row");
+  editingData.qs=Array.from(rows).map((row,i)=>{
+    const ch=Array.from(row.querySelectorAll(".q-ch")).map(el=>el.value);
+    const ansEl=row.querySelector('input[type=radio]:checked');
+    return {
+      cat:row.querySelector(".q-cat").value.trim(),
+      q:row.querySelector(".q-q").value.trim(),
+      ch,
+      ans:ansEl?parseInt(ansEl.dataset.idx):0,
+      ex:row.querySelector(".q-ex").value.trim(),
+      img:row.querySelector(".q-img").value.trim()
+    };
+  });
+
+  $("save-info").textContent="กำลังบันทึก...";
+  try{
+    await setDoc(doc(db,"quizSets",editingId),editingData);
+    $("save-info").textContent="บันทึกแล้ว";
+    toast("บันทึกสำเร็จ");
+    setTimeout(()=>$("save-info").textContent="",2500);
+  }catch(e){
+    $("save-info").textContent="";
+    toast("บันทึกไม่สำเร็จ: "+e.message);
+  }
+};
+</script>
+
+</body>
+</html>
