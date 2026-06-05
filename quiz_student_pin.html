@@ -79,7 +79,12 @@ body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--white);mi
 .toast.sent{color:var(--green);border-color:var(--green);}
 .toast.err{color:var(--red);border-color:var(--red);}
 @keyframes fadein{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+.q-img{display:block;max-width:100%;max-height:40vh;border-radius:10px;margin:10px 0 12px;object-fit:contain;background:var(--bg2);}
 </style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#E8793C">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}</script>
 </head>
 <body>
 
@@ -248,6 +253,7 @@ function renderQ() {
       <div class="q-badge" style="background:${activeSet.color}">${curQ + 1}</div>
       <div class="q-text">${q.q}</div>
     </div>
+    ${q.img ? `<img class="q-img" src="${q.img}" loading="lazy" alt="">` : ""}
     <div class="choices">
       ${q.ch.map((c,i) => `
         <button class="choice" id="c${i}" onclick="pick(${i})">

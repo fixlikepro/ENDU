@@ -1,0 +1,15 @@
+{
+  "name": "ENDU Quiz",
+  "short_name": "ENDU",
+  "description": "ระบบทำข้อสอบของโรงเรียนเอ็นดู ช่างซ่อมโทรศัพท์",
+  "start_url": "./quiz_student_pin.html",
+  "display": "standalone",
+  "background_color": "#0D0B09",
+  "theme_color": "#E8793C",
+  "orientation": "portrait",
+  "lang": "th",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

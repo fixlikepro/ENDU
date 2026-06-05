@@ -47,7 +47,25 @@ service cloud.firestore {
 
 > ⚠️ Rules ของ `sessions` กับ `results` ปัจจุบันเปิดให้ทุกคน — ถ้าต้องการเข้มงวด ค่อย restrict ภายหลัง (อาจใช้ short-lived token จากครู)
 
-### 4. Migration (ครั้งเดียว)
+### 4. Firebase Storage (สำหรับรูปประกอบข้อสอบ)
+
+Firebase Console → Storage → Get started → Production mode
+
+Storage Rules
+
+```
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /quiz-images/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
+```
+
+### 5. Migration (ครั้งเดียว)
 1. ก่อน migrate ชั่วคราวเปลี่ยน `quizSets` rule เป็น `allow write: if true;`
 2. เปิด `migrate.html` ใน browser → กด "เริ่ม migrate ทั้ง 4 ชุด"
 3. กด "ตรวจสอบของที่อยู่บน Firestore" ดูว่าทั้ง 4 ชุดขึ้นแล้ว

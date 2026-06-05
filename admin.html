@@ -75,7 +75,14 @@ h1{font-size:18px;color:var(--orange);margin-bottom:6px;}
 .toast{position:fixed;top:20px;right:20px;background:var(--bg2);border:1px solid var(--orange);border-radius:8px;padding:12px 16px;font-size:13px;display:none;z-index:50;}
 .toast.show{display:block;}
 .hidden{display:none!important;}
+.q-img-preview{max-width:180px;max-height:120px;border-radius:6px;display:block;margin-top:6px;}
+.q-img-row{display:flex;gap:8px;align-items:center;margin-top:4px;}
+.q-img-row input[type=file]{font-size:11px;color:var(--gray2);}
 </style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#E8793C">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}</script>
 </head>
 <body>
 
@@ -145,6 +152,7 @@ h1{font-size:18px;color:var(--orange);margin-bottom:6px;}
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import{getFirestore,collection,doc,setDoc,getDoc,getDocs,query,orderBy,deleteDoc}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import{getStorage,ref,uploadBytes,getDownloadURL}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyB2rLc1FFlq_GgPpmKJfH6CkNWKlS1VeIE",
@@ -157,6 +165,7 @@ const firebaseConfig={
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const db=getFirestore(app);
+const storage=getStorage(app);
 
 const $=id=>document.getElementById(id);
 const show=id=>{["scr-login","scr-list","scr-edit"].forEach(s=>$(s).classList.toggle("hidden",s!==id));};
@@ -283,13 +292,49 @@ function renderQs(){
           </div>`).join("")}
       </div>
       <div class="field"><label>คำอธิบาย (ex)</label><textarea class="input input-small q-ex">${escapeHtml(q.ex||"")}</textarea></div>
-      <div class="field"><label>URL รูป (img — ใส่หรือเว้นว่าง)</label><input class="input input-small q-img" value="${escapeHtml(q.img||"")}"></div>
+      <div class="field"><label>รูปประกอบข้อนี้ (ไม่บังคับ)</label>
+        <input class="input input-small q-img" value="${escapeHtml(q.img||"")}" placeholder="URL หรือกด 'อัปโหลด' ด้านล่าง">
+        <div class="q-img-row">
+          <input type="file" accept="image/*" onchange="uploadImage(this,${i})">
+          <span class="upload-status" data-idx="${i}" style="font-size:11px;color:var(--gray2);"></span>
+        </div>
+        ${q.img ? `<img class="q-img-preview" src="${q.img}" alt="">` : ""}
+      </div>
       <div class="q-actions"><button class="btn btn-danger" onclick="deleteQ(${i})">ลบข้อนี้</button></div>`;
     list.appendChild(row);
   });
 }
 
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+
+window.uploadImage=async(input,qIdx)=>{
+  const file=input.files[0];
+  if(!file)return;
+  const status=document.querySelector(`.upload-status[data-idx="${qIdx}"]`);
+  status.textContent="กำลังอัปโหลด...";
+  status.style.color="var(--gray1)";
+  try{
+    const ext=(file.name.split(".").pop()||"jpg").toLowerCase();
+    const path=`quiz-images/${editingId}/${qIdx}-${file.size}-${file.lastModified}.${ext}`;
+    const r=ref(storage,path);
+    await uploadBytes(r,file);
+    const url=await getDownloadURL(r);
+    const row=input.closest(".q-row");
+    row.querySelector(".q-img").value=url;
+    let preview=row.querySelector(".q-img-preview");
+    if(!preview){
+      preview=document.createElement("img");
+      preview.className="q-img-preview";
+      input.closest(".field").appendChild(preview);
+    }
+    preview.src=url;
+    status.textContent="✓ อัปโหลดแล้ว (อย่าลืมกดบันทึก)";
+    status.style.color="var(--green)";
+  }catch(e){
+    status.textContent="✗ "+e.message;
+    status.style.color="var(--red)";
+  }
+};
 
 window.addQuestion=()=>{
   editingData.qs=editingData.qs||[];
