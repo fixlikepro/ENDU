@@ -206,7 +206,7 @@ window.openSession=async()=>{
 /* ── Listen Results ── */
 function listenResults(pin){
   if(unsubResults)unsubResults();
-  const q=query(collection(db,"results"),where("pin","==",pin),orderBy("submittedAt","desc"));
+  const q=query(collection(db,"results"),where("pin","==",pin));
   unsubResults=onSnapshot(q,snap=>{
     const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderResults(rows);
@@ -236,6 +236,7 @@ function renderResults(rows){
   const sorted=[...rows];
   if(sortMode==="score")sorted.sort((a,b)=>b.score-a.score);
   else if(sortMode==="name")sorted.sort((a,b)=>a.name.localeCompare(b.name,"th"));
+  else sorted.sort((a,b)=>(b.submittedAt?.toMillis?.()||0)-(a.submittedAt?.toMillis?.()||0));
   const le=document.getElementById("s-list");
   if(!total){le.innerHTML=`<div style="text-align:center;padding:40px 0;color:var(--gray3)">รอนักเรียนส่ง...</div>`;return;}
   le.innerHTML=sorted.map((r,i)=>{
@@ -287,14 +288,17 @@ async function loadQuizSets(){
   const grid=document.getElementById("quiz-grid");
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:#7A736C;font-size:14px;">กำลังโหลดชุดข้อสอบ...</div>';
   try{
-    const q=query(collection(db,"quizSets"),where("active","==",true),orderBy("order"));
-    const snap=await getDocs(q);
+    const snap=await getDocs(collection(db,"quizSets"));
     grid.innerHTML="";
-    if(snap.empty){
+    // คัดเฉพาะชุดที่ active แล้วเรียงตาม order ในเครื่อง (เลี่ยง composite index)
+    const docs=snap.docs
+      .filter(d=>d.data().active!==false)
+      .sort((a,b)=>(a.data().order||0)-(b.data().order||0));
+    if(!docs.length){
       grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:#F5A0A0;font-size:14px;">ไม่พบชุดข้อสอบ — โปรดรัน migrate.html ก่อน</div>';
       return;
     }
-    snap.forEach(d=>{
+    docs.forEach(d=>{
       const set=d.data();
       window.QUIZ_SETS[d.id]=set;
       const card=document.createElement("div");
