@@ -47,23 +47,11 @@ service cloud.firestore {
 
 > ⚠️ Rules ของ `sessions` กับ `results` ปัจจุบันเปิดให้ทุกคน — ถ้าต้องการเข้มงวด ค่อย restrict ภายหลัง (อาจใช้ short-lived token จากครู)
 
-### 4. Firebase Storage (สำหรับรูปประกอบข้อสอบ)
+### 4. รูปประกอบข้อสอบ (ไม่ใช้ Storage)
 
-Firebase Console → Storage → Get started → Production mode
+ใช้ Spark plan (ฟรี) ไม่ต้องเปิด Firebase Storage และไม่ต้องผูกบัตร
 
-Storage Rules
-
-```
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /quiz-images/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-  }
-}
-```
+รูปประกอบข้อสอบใช้วิธี "วางลิงก์" แทน — อัปรูปขึ้นเว็บฝากรูปฟรี (เช่น imgur.com) แล้วก๊อปลิงก์มาวางในช่อง "รูปประกอบข้อนี้" ใน admin.html ระบบจะแสดงรูปจากลิงก์นั้นในข้อสอบให้นักเรียนเห็น
 
 ### 5. Migration (ครั้งเดียว)
 1. ก่อน migrate ชั่วคราวเปลี่ยน `quizSets` rule เป็น `allow write: if true;`
