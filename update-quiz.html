@@ -2,13 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<title>ENDU — อัปเดตข้อสอบ Basic ชุดใหม่</title>
+<title>ENDU — อัปเดตข้อสอบสามระดับ</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
 body{font-family:'Sarabun',-apple-system,sans-serif;background:#0D0B09;color:#F5F0EB;padding:30px 16px;max-width:760px;margin:0 auto;}
 h1{font-size:20px;color:#E8793C;margin:0 0 8px;}
-p{color:#C9C1B8;line-height:1.6;}
+p,li{color:#C9C1B8;line-height:1.6;}
 input{width:100%;box-sizing:border-box;padding:10px 12px;margin:6px 0 12px;border-radius:8px;border:1px solid #3A3530;background:#1A1714;color:#F5F0EB;font-size:15px;}
 button{background:#E8793C;color:#0D0B09;border:0;border-radius:8px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;margin:4px 8px 4px 0;}
 button.ghost{background:#3A3530;color:#F5F0EB;}
@@ -20,9 +20,13 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
 </style>
 </head>
 <body>
-<h1>อัปเดตข้อสอบ Basic H1 และ Basic H2 เป็นชุดใหม่</h1>
-<p>ชุดใหม่ 40 ข้อ ออกจากคู่มือคอร์สระดับเบื้องต้น 5 บท Basic H1 20 ข้อ (โครงสร้างเครื่อง ความปลอดภัย แกะ ประกอบ เปลี่ยนอะไหล่ ราคาและร้าน) Basic H2 20 ข้อ (หัวแร้ง ลมร้อน มัลติมิเตอร์ เครื่องจ่ายไฟ กล้องไมโครสโคป)</p>
-<p>หน้านี้แทนที่เฉพาะคำถาม ชื่อ และคำอธิบายของสองชุดนี้ สีและเกณฑ์ผ่านคงเดิม ชุด Advance กับ Pro ไม่ถูกแตะ ก่อนเขียนหน้านี้จะดาวน์โหลดสำรองชุดเดิมให้อัตโนมัติ และมีสำรองอีกชุดใน <code>data/backup-basic-before-2026-10-06.json</code></p>
+<h1>อัปเดตข้อสอบเป็นสามระดับ ระดับละ 40 ข้อ</h1>
+<ul>
+  <li><b>Basic</b> ระดับต้น จากคู่มือระดับเบื้องต้น 5 บท (รวม Basic H1 กับ H2 เดิมเป็นชุดเดียว)</li>
+  <li><b>Advance</b> ระดับกลาง จากคู่มือระดับกลาง 5 บท บทละ 8 ข้อ</li>
+  <li><b>Pro</b> ระดับสูง จากคู่มือระดับสูง 5 บท บทละ 8 ข้อ</li>
+</ul>
+<p>หน้านี้แทนที่คำถาม ชื่อ และคำอธิบายของสามชุดนี้ สีและเกณฑ์ผ่านคงเดิม ชุด Basic H2 เดิมจะถูกซ่อน (ไม่ลบ) ก่อนเขียนจะดาวน์โหลดสำรองของเดิมทั้งหมดให้อัตโนมัติ</p>
 
 <div class="box" id="scr-login">
   <b>เข้าระบบด้วยบัญชีเดียวกับ admin.html</b>
@@ -34,7 +38,7 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
 <div class="box hidden" id="scr-main">
   <div id="user-tag" class="info"></div>
   <p id="preview" class="info">กำลังโหลดข้อสอบชุดใหม่...</p>
-  <button id="btn-run" disabled>แทนที่ Basic H1 และ H2 ด้วยชุดใหม่</button>
+  <button id="btn-run" disabled>อัปเดตเป็นสามระดับ</button>
   <button class="ghost" id="btn-verify">ตรวจของที่อยู่บน Firestore</button>
 </div>
 
@@ -43,7 +47,7 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import{getFirestore,doc,setDoc,getDoc,getDocs,collection}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import{getFirestore,doc,setDoc,getDocs,collection}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyB2rLc1FFlq_GgPpmKJfH6CkNWKlS1VeIE",
@@ -67,10 +71,10 @@ onAuthStateChanged(auth,async user=>{
   if(!user)return;
   $("user-tag").textContent="เข้าระบบเป็น "+user.email;
   try{
-    NEW=await (await fetch("data/basic-2026-10.json",{cache:"no-store"})).json();
-    $("preview").textContent="ชุดใหม่ "+NEW.basic1.name+" "+NEW.basic1.qs.length+" ข้อ และ "+NEW.basic2.name+" "+NEW.basic2.qs.length+" ข้อ พร้อมเขียน";
+    NEW=await (await fetch("data/quiz-2026-10.json",{cache:"no-store"})).json();
+    $("preview").textContent=["basic1","adv1","adv2"].map(k=>NEW[k].name+" "+NEW[k].qs.length+" ข้อ").join(" · ")+" พร้อมเขียน";
     $("btn-run").disabled=false;
-  }catch(e){log("โหลด data/basic-2026-10.json ไม่ได้ "+e.message,"err");}
+  }catch(e){log("โหลด data/quiz-2026-10.json ไม่ได้ "+e.message,"err");}
 });
 
 window.doLogin=async()=>{
@@ -85,22 +89,18 @@ function download(name,obj){
 }
 
 $("btn-run").onclick=async()=>{
-  if(!confirm("แทนที่คำถาม Basic H1 และ Basic H2 ทั้งหมดด้วยชุดใหม่ 40 ข้อ ใช่ไหม"))return;
+  if(!confirm("อัปเดตข้อสอบเป็นสามระดับ Basic Advance Pro ระดับละ 40 ข้อ และซ่อนชุด Basic H2 ใช่ไหม"))return;
   $("btn-run").disabled=true;
   try{
     const backup={};
-    for(const key of["basic1","basic2"]){
-      const snap=await getDoc(doc(db,"quizSets",key));
-      backup[key]=snap.exists()?snap.data():null;
-    }
-    download("backup-basic-"+new Date().toISOString().slice(0,10)+".json",backup);
-    log("ดาวน์โหลดสำรองชุดเดิมแล้ว","ok");
-    for(const key of["basic1","basic2"]){
-      const merged=Object.assign({},backup[key]||{},{
-        name:NEW[key].name,level:NEW[key].level,desc:NEW[key].desc,qs:NEW[key].qs
-      });
+    (await getDocs(collection(db,"quizSets"))).forEach(d=>{backup[d.id]=d.data();});
+    download("backup-quizSets-"+new Date().toISOString().slice(0,10)+".json",backup);
+    log("ดาวน์โหลดสำรองของเดิมทั้งหมดแล้ว","ok");
+    for(const key of Object.keys(NEW)){
+      if(!backup[key]&&key==="basic2")continue;
+      const merged=Object.assign({},backup[key]||{},NEW[key]);
       await setDoc(doc(db,"quizSets",key),merged);
-      log("✓ "+key+" ("+merged.name+") "+merged.qs.length+" ข้อ","ok");
+      log("✓ "+key+" "+(merged.name||"")+" "+(merged.qs?merged.qs.length:0)+" ข้อ"+(merged.active===false?" (ซ่อน)":""),"ok");
     }
     log("เสร็จแล้ว เปิด quiz_teacher.html เพื่อตรวจได้เลย","ok");
   }catch(e){
@@ -111,7 +111,7 @@ $("btn-run").onclick=async()=>{
 
 $("btn-verify").onclick=async()=>{
   const snap=await getDocs(collection(db,"quizSets"));
-  snap.forEach(d=>{const x=d.data();log("• "+d.id+" "+x.name+" "+(x.qs?.length||0)+" ข้อ","info");});
+  snap.forEach(d=>{const x=d.data();log("• "+d.id+" "+x.name+" "+(x.qs?.length||0)+" ข้อ"+(x.active===false?" (ซ่อน)":""),"info");});
 };
 </script>
 </body>
