@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ENDU — อัปเดตข้อสอบ Basic ชุดใหม่</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+body{font-family:'Sarabun',-apple-system,sans-serif;background:#0D0B09;color:#F5F0EB;padding:30px 16px;max-width:760px;margin:0 auto;}
+h1{font-size:20px;color:#E8793C;margin:0 0 8px;}
+p{color:#C9C1B8;line-height:1.6;}
+input{width:100%;box-sizing:border-box;padding:10px 12px;margin:6px 0 12px;border-radius:8px;border:1px solid #3A3530;background:#1A1714;color:#F5F0EB;font-size:15px;}
+button{background:#E8793C;color:#0D0B09;border:0;border-radius:8px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;margin:4px 8px 4px 0;}
+button.ghost{background:#3A3530;color:#F5F0EB;}
+button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
+.box{background:#1A1714;border:1px solid #3A3530;border-radius:12px;padding:16px;margin:16px 0;}
+.log{background:#000;border-radius:8px;padding:12px;font-family:monospace;font-size:13px;white-space:pre-wrap;min-height:60px;}
+.ok{color:#5FD3A6;} .err{color:#F5A0A0;} .info{color:#C9C1B8;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<h1>อัปเดตข้อสอบ Basic H1 และ Basic H2 เป็นชุดใหม่</h1>
+<p>ชุดใหม่ 40 ข้อ ออกจากคู่มือคอร์สระดับเบื้องต้น 5 บท Basic H1 20 ข้อ (โครงสร้างเครื่อง ความปลอดภัย แกะ ประกอบ เปลี่ยนอะไหล่ ราคาและร้าน) Basic H2 20 ข้อ (หัวแร้ง ลมร้อน มัลติมิเตอร์ เครื่องจ่ายไฟ กล้องไมโครสโคป)</p>
+<p>หน้านี้แทนที่เฉพาะคำถาม ชื่อ และคำอธิบายของสองชุดนี้ สีและเกณฑ์ผ่านคงเดิม ชุด Advance กับ Pro ไม่ถูกแตะ ก่อนเขียนหน้านี้จะดาวน์โหลดสำรองชุดเดิมให้อัตโนมัติ และมีสำรองอีกชุดใน <code>data/backup-basic-before-2026-10-06.json</code></p>
+
+<div class="box" id="scr-login">
+  <b>เข้าระบบด้วยบัญชีเดียวกับ admin.html</b>
+  <input id="email" type="email" placeholder="อีเมล" autocomplete="username">
+  <input id="pw" type="password" placeholder="รหัสผ่าน" autocomplete="current-password">
+  <button onclick="doLogin()">เข้าระบบ</button>
+</div>
+
+<div class="box hidden" id="scr-main">
+  <div id="user-tag" class="info"></div>
+  <p id="preview" class="info">กำลังโหลดข้อสอบชุดใหม่...</p>
+  <button id="btn-run" disabled>แทนที่ Basic H1 และ H2 ด้วยชุดใหม่</button>
+  <button class="ghost" id="btn-verify">ตรวจของที่อยู่บน Firestore</button>
+</div>
+
+<div class="log" id="log"></div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import{getFirestore,doc,setDoc,getDoc,getDocs,collection}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyB2rLc1FFlq_GgPpmKJfH6CkNWKlS1VeIE",
+  authDomain:"endu-training-center.firebaseapp.com",
+  projectId:"endu-training-center",
+  storageBucket:"endu-training-center.firebasestorage.app",
+  messagingSenderId:"753650086986",
+  appId:"1:753650086986:web:554de37bee5ee25713a2b3"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+const $=id=>document.getElementById(id);
+const log=(msg,cls="info")=>{const r=document.createElement("div");r.className=cls;r.textContent=msg;$("log").appendChild(r);};
+
+let NEW=null;
+
+onAuthStateChanged(auth,async user=>{
+  $("scr-login").classList.toggle("hidden",!!user);
+  $("scr-main").classList.toggle("hidden",!user);
+  if(!user)return;
+  $("user-tag").textContent="เข้าระบบเป็น "+user.email;
+  try{
+    NEW=await (await fetch("data/basic-2026-10.json",{cache:"no-store"})).json();
+    $("preview").textContent="ชุดใหม่ "+NEW.basic1.name+" "+NEW.basic1.qs.length+" ข้อ และ "+NEW.basic2.name+" "+NEW.basic2.qs.length+" ข้อ พร้อมเขียน";
+    $("btn-run").disabled=false;
+  }catch(e){log("โหลด data/basic-2026-10.json ไม่ได้ "+e.message,"err");}
+});
+
+window.doLogin=async()=>{
+  try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("pw").value);}
+  catch(e){log("เข้าระบบไม่สำเร็จ "+e.code,"err");}
+};
+
+function download(name,obj){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:"application/json"}));
+  a.download=name;a.click();
+}
+
+$("btn-run").onclick=async()=>{
+  if(!confirm("แทนที่คำถาม Basic H1 และ Basic H2 ทั้งหมดด้วยชุดใหม่ 40 ข้อ ใช่ไหม"))return;
+  $("btn-run").disabled=true;
+  try{
+    const backup={};
+    for(const key of["basic1","basic2"]){
+      const snap=await getDoc(doc(db,"quizSets",key));
+      backup[key]=snap.exists()?snap.data():null;
+    }
+    download("backup-basic-"+new Date().toISOString().slice(0,10)+".json",backup);
+    log("ดาวน์โหลดสำรองชุดเดิมแล้ว","ok");
+    for(const key of["basic1","basic2"]){
+      const merged=Object.assign({},backup[key]||{},{
+        name:NEW[key].name,level:NEW[key].level,desc:NEW[key].desc,qs:NEW[key].qs
+      });
+      await setDoc(doc(db,"quizSets",key),merged);
+      log("✓ "+key+" ("+merged.name+") "+merged.qs.length+" ข้อ","ok");
+    }
+    log("เสร็จแล้ว เปิด quiz_teacher.html เพื่อตรวจได้เลย","ok");
+  }catch(e){
+    log("✗ "+e.message,"err");
+    $("btn-run").disabled=false;
+  }
+};
+
+$("btn-verify").onclick=async()=>{
+  const snap=await getDocs(collection(db,"quizSets"));
+  snap.forEach(d=>{const x=d.data();log("• "+d.id+" "+x.name+" "+(x.qs?.length||0)+" ข้อ","info");});
+};
+</script>
+</body>
+</html>
