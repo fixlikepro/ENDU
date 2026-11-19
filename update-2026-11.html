@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ENDU — อัปเดตข้อสอบ พ.ย. 2026</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
+body{font-family:'Sarabun',-apple-system,sans-serif;background:#0D0B09;color:#F5F0EB;padding:30px 16px;max-width:760px;margin:0 auto;}
+h1{font-size:22px;color:#E8793C;margin:0 0 8px;}
+h2{font-size:17px;margin:0 0 6px;color:#F5F0EB;}
+p,li{color:#C9C1B8;line-height:1.6;margin:4px 0;}
+input{width:100%;box-sizing:border-box;padding:12px;margin:6px 0 12px;border-radius:8px;border:1px solid #3A3530;background:#0D0B09;color:#F5F0EB;font-size:16px;}
+button{background:#E8793C;color:#0D0B09;border:0;border-radius:8px;padding:12px 20px;font-size:16px;font-weight:700;cursor:pointer;margin:4px 8px 4px 0;font-family:inherit;}
+button.ghost{background:#3A3530;color:#F5F0EB;}
+button.link{background:none;color:#E8793C;padding:6px 0;font-weight:600;text-decoration:underline;}
+button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
+.box{background:#1A1714;border:1px solid #3A3530;border-radius:12px;padding:18px;margin:16px 0;}
+.step{display:inline-block;background:#E8793C;color:#0D0B09;border-radius:20px;padding:1px 10px;font-weight:700;font-size:13px;margin-right:6px;}
+.log{background:#000;border-radius:8px;padding:12px;font-family:monospace;font-size:13px;white-space:pre-wrap;min-height:20px;margin-top:10px;}
+.log:empty{display:none;}
+.msg{border-radius:8px;padding:10px 12px;margin-top:8px;}
+.msg:empty{display:none;}
+.ok{color:#5FD3A6;} .err{color:#F5A0A0;} .info{color:#C9C1B8;} .warn{color:#F2C46D;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<h1>อัปเดตข้อสอบ พ.ย. 2026</h1>
+<p>หน้าเดียวจบ สองงาน เพิ่มชุดสอบซ่อมระดับกลาง และแก้ 9 ข้อในชุดเดิม</p>
+
+<div class="box" id="scr-login">
+  <h2>เข้าระบบ</h2>
+  <p>ใช้อีเมลและรหัสผ่านเดียวกับหน้า admin.html</p>
+  <input id="email" type="email" placeholder="อีเมล" autocomplete="username">
+  <input id="pw" type="password" placeholder="รหัสผ่าน" autocomplete="current-password">
+  <button id="btn-login">เข้าระบบ</button>
+  <button class="link" id="btn-forgot">ลืมรหัสผ่าน</button>
+  <div class="msg" id="login-msg"></div>
+</div>
+
+<div class="hidden" id="scr-main">
+  <p id="user-tag" class="info"></p>
+
+  <div class="box">
+    <h2><span class="step">1</span>เพิ่มชุดสอบซ่อมระดับกลาง</h2>
+    <p>40 ข้อ ใช้เมื่อนักเรียนสอบ Advance ไม่ผ่าน ไม่แตะชุดอื่น สีและเกณฑ์ผ่านเหมือนชุด Advance</p>
+    <button id="btn-makeup" disabled>เพิ่มชุดสอบซ่อม</button>
+    <div class="log" id="log-makeup"></div>
+  </div>
+
+  <div class="box">
+    <h2><span class="step">2</span>แก้ 9 ข้อในชุดเดิม</h2>
+    <p>ไฟส่องหลัง เป็น ไฟแบ็คไลท์ และข้อไอซี BGA แก้เฉพาะข้อที่ยังเหมือนฉบับเดือนตุลาคม ข้อที่พี่เคยแก้เองใน admin.html จะไม่ถูกแตะ รูปประกอบคงเดิม กดตรวจก่อนได้ ยังไม่เขียนอะไร</p>
+    <button class="ghost" id="btn-check" disabled>ตรวจก่อน</button>
+    <button id="btn-patch" disabled>แก้ข้อที่ตรวจผ่าน</button>
+    <div class="log" id="log-patch"></div>
+  </div>
+
+  <button class="ghost" id="btn-logout">ออกจากระบบ</button>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,sendPasswordResetEmail,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import{getFirestore,doc,setDoc,getDocs,collection}from"https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyB2rLc1FFlq_GgPpmKJfH6CkNWKlS1VeIE",
+  authDomain:"endu-training-center.firebaseapp.com",
+  projectId:"endu-training-center",
+  storageBucket:"endu-training-center.firebasestorage.app",
+  messagingSenderId:"753650086986",
+  appId:"1:753650086986:web:554de37bee5ee25713a2b3"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+auth.languageCode="th";
+const $=id=>document.getElementById(id);
+const logTo=box=>(msg,cls="info")=>{const r=document.createElement("div");r.className=cls;r.textContent=msg;$(box).appendChild(r);};
+const logM=logTo("log-makeup"), logP=logTo("log-patch");
+const say=(msg,cls)=>{$("login-msg").className="msg "+cls;$("login-msg").textContent=msg;};
+
+const AUTH_TH={
+  "auth/invalid-credential":"อีเมลหรือรหัสผ่านไม่ถูกต้อง ถ้าจำรหัสไม่ได้ กด ลืมรหัสผ่าน",
+  "auth/wrong-password":"รหัสผ่านไม่ถูกต้อง ถ้าจำไม่ได้ กด ลืมรหัสผ่าน",
+  "auth/user-not-found":"ไม่พบบัญชีนี้ ลองเช็กอีเมลอีกครั้ง",
+  "auth/invalid-email":"รูปแบบอีเมลไม่ถูกต้อง",
+  "auth/missing-password":"ยังไม่ได้ใส่รหัสผ่าน",
+  "auth/too-many-requests":"ลองผิดหลายครั้งเกินไป ระบบล็อกชั่วคราว รอสักครู่ หรือกด ลืมรหัสผ่าน",
+  "auth/network-request-failed":"เชื่อมต่ออินเทอร์เน็ตไม่ได้",
+  "auth/user-disabled":"บัญชีนี้ถูกปิดใช้งานใน Firebase",
+};
+const th=e=>AUTH_TH[e.code]||("เข้าระบบไม่สำเร็จ ("+(e.code||e.message)+")");
+
+let MAKEUP=null, PATCH=null, PLAN=null, SETS=null;
+
+onAuthStateChanged(auth,async user=>{
+  $("scr-login").classList.toggle("hidden",!!user);
+  $("scr-main").classList.toggle("hidden",!user);
+  if(!user)return;
+  $("user-tag").textContent="เข้าระบบเป็น "+user.email;
+  try{
+    MAKEUP=(await (await fetch("data/quiz-makeup-2026-11.json",{cache:"no-store"})).json()).adv1r;
+    $("btn-makeup").disabled=false;
+  }catch(e){logM("โหลดชุดสอบซ่อมไม่ได้ "+e.message,"err");}
+  try{
+    PATCH=await (await fetch("data/patch-2026-11-19.json",{cache:"no-store"})).json();
+    $("btn-check").disabled=false;
+  }catch(e){logP("โหลดรายการแก้ไม่ได้ "+e.message,"err");}
+});
+
+$("btn-login").onclick=async()=>{
+  say("กำลังเข้าระบบ...","info");
+  try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("pw").value);say("","");}
+  catch(e){say(th(e),"err");}
+};
+$("pw").addEventListener("keydown",e=>{if(e.key==="Enter")$("btn-login").click();});
+
+$("btn-forgot").onclick=async()=>{
+  const email=$("email").value.trim();
+  if(!email){say("ใส่อีเมลในช่องด้านบนก่อน แล้วกด ลืมรหัสผ่าน อีกครั้ง","warn");$("email").focus();return;}
+  try{
+    await sendPasswordResetEmail(auth,email);
+    say("ส่งลิงก์ตั้งรหัสใหม่ไปที่ "+email+" แล้ว เปิดอีเมล (ดูในจดหมายขยะด้วย) กดลิงก์ ตั้งรหัสใหม่ แล้วกลับมาเข้าระบบที่หน้านี้","ok");
+  }catch(e){say(th(e),"err");}
+};
+
+$("btn-logout").onclick=()=>signOut(auth);
+
+function download(name,obj){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:"application/json"}));
+  a.download=name;a.click();
+}
+async function readAll(){const s={};(await getDocs(collection(db,"quizSets"))).forEach(d=>{s[d.id]=d.data();});return s;}
+
+/* ── งาน 1 ชุดสอบซ่อม ── */
+$("btn-makeup").onclick=async()=>{
+  if(!confirm("เพิ่มชุด "+MAKEUP.name+" "+MAKEUP.qs.length+" ข้อ ใช่ไหม"))return;
+  $("btn-makeup").disabled=true;
+  try{
+    const backup=await readAll();
+    download("backup-quizSets-"+new Date().toISOString().slice(0,10)+".json",backup);
+    logM("ดาวน์โหลดสำรองของเดิมแล้ว","ok");
+    const src=backup.adv1;
+    if(!src)throw new Error("ไม่พบชุด Advance บนระบบ");
+    const style={};["color","cardCls","passBg","passColor","passLine"].forEach(k=>{if(src[k]!==undefined)style[k]=src[k];});
+    const merged=Object.assign({},style,MAKEUP);
+    await setDoc(doc(db,"quizSets","adv1r"),merged);
+    logM("✓ เพิ่ม "+merged.name+" "+merged.qs.length+" ข้อ เกณฑ์ผ่าน "+(merged.passLine??"-")+"% เรียบร้อย","ok");
+  }catch(e){logM("✗ "+e.message,"err");$("btn-makeup").disabled=false;}
+};
+
+/* ── งาน 2 แก้ 9 ข้อ ── */
+const NAME={basic1:"Basic",adv1:"Advance",adv2:"Pro"};
+const F=["cat","q","ch","ans","ex"];
+const same=(a,b)=>F.every(f=>JSON.stringify(a[f])===JSON.stringify(b[f]));
+// จับคู่ด้วยเนื้อข้อ ไม่ใช้ลำดับข้อ เผื่อเคยเพิ่มหรือลบข้อใน admin.html
+function makePlan(sets,patch){
+  return patch.map(p=>{
+    const qs=(sets[p.set]&&sets[p.set].qs)||[];
+    const iOld=qs.findIndex(q=>same(q,p.old)), iNew=qs.findIndex(q=>same(q,p.new));
+    const label=NAME[p.set]+" ข้อ "+(p.i+1)+" "+p.new.q.slice(0,40)+"…";
+    if(iOld>=0)return{p,idx:iOld,status:"fix",label};
+    if(iNew>=0)return{p,idx:iNew,status:"done",label};
+    return{p,idx:-1,status:"edited",label};
+  });
+}
+
+$("btn-check").onclick=async()=>{
+  $("log-patch").innerHTML="";
+  SETS=await readAll();
+  PLAN=makePlan(SETS,PATCH);
+  for(const x of PLAN){
+    if(x.status==="fix")logP("✓ จะแก้  "+x.label,"ok");
+    else if(x.status==="done")logP("• แก้แล้ว "+x.label,"info");
+    else logP("⚠ ไม่แตะ พี่เคยแก้ข้อนี้เอง "+x.label,"warn");
+  }
+  const n=PLAN.filter(x=>x.status==="fix").length;
+  logP("สรุป จะแก้ "+n+" · แก้แล้ว "+PLAN.filter(x=>x.status==="done").length+" · ไม่แตะ "+PLAN.filter(x=>x.status==="edited").length,"info");
+  $("btn-patch").disabled=n===0;
+};
+
+$("btn-patch").onclick=async()=>{
+  const todo=PLAN.filter(x=>x.status==="fix");
+  if(!confirm("แก้ "+todo.length+" ข้อ ใช่ไหม"))return;
+  $("btn-patch").disabled=true;
+  try{
+    download("backup-quizSets-"+new Date().toISOString().slice(0,10)+".json",SETS);
+    logP("ดาวน์โหลดสำรองของเดิมแล้ว","ok");
+    const touched={};
+    for(const x of todo){
+      const set=touched[x.p.set]||(touched[x.p.set]=JSON.parse(JSON.stringify(SETS[x.p.set])));
+      set.qs[x.idx]=Object.assign({},set.qs[x.idx],x.p.new); // คง img เดิม
+    }
+    for(const [k,set] of Object.entries(touched)){
+      await setDoc(doc(db,"quizSets",k),set);
+      logP("✓ บันทึกชุด "+NAME[k]+" แล้ว","ok");
+    }
+    logP("เสร็จแล้ว กด ตรวจก่อน อีกครั้ง ทุกข้อควรขึ้นว่า แก้แล้ว","ok");
+  }catch(e){logP("✗ "+e.message,"err");$("btn-patch").disabled=false;}
+};
+</script>
+</body>
+</html>
