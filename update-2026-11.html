@@ -27,7 +27,7 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
 </head>
 <body>
 <h1>อัปเดตข้อสอบ พ.ย. 2026</h1>
-<p>หน้าเดียวจบ สองงาน เพิ่มชุดสอบซ่อมระดับกลาง และแก้ 9 ข้อในชุดเดิม</p>
+<p>หน้าเดียวจบ สองงาน เพิ่มชุดสอบซ่อมระดับกลาง และแก้ 10 ข้อในชุดเดิม</p>
 
 <div class="box" id="scr-login">
   <h2>เข้าระบบ</h2>
@@ -50,8 +50,8 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
   </div>
 
   <div class="box">
-    <h2><span class="step">2</span>แก้ 9 ข้อในชุดเดิม</h2>
-    <p>ไฟส่องหลัง เป็น ไฟแบ็คไลท์ และข้อไอซี BGA แก้เฉพาะข้อที่ยังเหมือนฉบับเดือนตุลาคม ข้อที่พี่เคยแก้เองใน admin.html จะไม่ถูกแตะ รูปประกอบคงเดิม กดตรวจก่อนได้ ยังไม่เขียนอะไร</p>
+    <h2><span class="step">2</span>แก้ 10 ข้อในชุดเดิม</h2>
+    <p>ไฟส่องหลัง เป็น ไฟแบ็คไลท์ ข้อไอซี BGA และคำถามข้อกระแสไต่ถึงระดับแอมป์ แก้เฉพาะข้อที่ยังเหมือนฉบับเดือนตุลาคม ข้อที่พี่เคยแก้เองใน admin.html จะไม่ถูกแตะ รูปประกอบคงเดิม กดตรวจก่อนได้ ยังไม่เขียนอะไร</p>
     <button class="ghost" id="btn-check" disabled>ตรวจก่อน</button>
     <button id="btn-patch" disabled>แก้ข้อที่ตรวจผ่าน</button>
     <div class="log" id="log-patch"></div>
@@ -153,7 +153,7 @@ $("btn-makeup").onclick=async()=>{
   }catch(e){logM("✗ "+e.message,"err");$("btn-makeup").disabled=false;}
 };
 
-/* ── งาน 2 แก้ 9 ข้อ ── */
+/* ── งาน 2 แก้ข้อในชุดเดิม ── */
 const NAME={basic1:"Basic",adv1:"Advance",adv2:"Pro"};
 const F=["cat","q","ch","ans","ex"];
 const same=(a,b)=>F.every(f=>JSON.stringify(a[f])===JSON.stringify(b[f]));
