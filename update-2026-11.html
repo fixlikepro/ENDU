@@ -44,7 +44,7 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
 
   <div class="box">
     <h2><span class="step">1</span>เพิ่มชุดสอบซ่อมระดับต้นและระดับกลาง</h2>
-    <p>สองชุด ชุดละ 40 ข้อ Basic สอบซ่อม ใช้เมื่อสอบ Basic ไม่ผ่าน และ Advance สอบซ่อม ใช้เมื่อสอบ Advance ไม่ผ่าน ไม่แตะชุดอื่น สีและเกณฑ์ผ่านเหมือนชุดแรกของระดับนั้น กดซ้ำได้ ชุดสอบซ่อมจะถูกเขียนทับด้วยฉบับล่าสุด</p>
+    <p>สองชุด ชุดละ 40 ข้อ Basic สอบซ่อม ใช้เมื่อสอบ Basic ไม่ผ่าน และ Advance สอบซ่อม ใช้เมื่อสอบ Advance ไม่ผ่าน ไม่แตะชุดอื่น สีและเกณฑ์ผ่านเหมือนชุดแรกของระดับนั้น ตอนนี้ชุด Basic สอบซ่อมยังซ่อนอยู่ ครูและนักเรียนยังไม่เห็น จะเปิดเมื่อพี่ตรวจผ่าน กดซ้ำได้ ชุดสอบซ่อมจะถูกเขียนทับด้วยฉบับล่าสุด</p>
     <button id="btn-makeup" disabled>เพิ่มชุดสอบซ่อม</button>
     <div class="log" id="log-makeup"></div>
   </div>
@@ -152,7 +152,7 @@ $("btn-makeup").onclick=async()=>{
       const style={};["color","cardCls","passBg","passColor","passLine"].forEach(f=>{if(src[f]!==undefined)style[f]=src[f];});
       const merged=Object.assign({},style,MAKEUP[k]);
       await setDoc(doc(db,"quizSets",k),merged);
-      logM("✓ "+merged.name+" "+merged.qs.length+" ข้อ เกณฑ์ผ่าน "+(merged.passLine??"-")+"% เรียบร้อย","ok");
+      logM("✓ "+merged.name+" "+merged.qs.length+" ข้อ เกณฑ์ผ่าน "+(merged.passLine??"-")+"%"+(merged.active===false?" (ซ่อนไว้ ยังไม่เปิดใช้)":" เปิดใช้แล้ว"),"ok");
     }
   }catch(e){logM("✗ "+e.message,"err");$("btn-makeup").disabled=false;}
 };
