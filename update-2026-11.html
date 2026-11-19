@@ -51,7 +51,7 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
 
   <div class="box">
     <h2><span class="step">2</span>ปรับสามชุดแรกเป็นฉบับล่าสุด</h2>
-    <p>ข้อสอบ Basic Advance Pro ที่อยู่บนระบบเป็นรุ่น 6 ต.ค. ยังไม่มีการแก้ของ 7 ต.ค. 11 ต.ค. และ 19 พ.ย. ขั้นนี้ปรับให้ตรงกับฉบับตรวจทุกข้อ จำนวนข้อ สี เกณฑ์ผ่าน และรูปประกอบคงเดิม ผลสอบเก่าไม่หาย กดตรวจก่อนได้ ยังไม่เขียนอะไร</p>
+    <p>ข้อสอบ Basic Advance Pro ที่อยู่บนระบบเป็นรุ่น 6 ต.ค. ยังไม่มีการแก้ของ 7 ต.ค. 11 ต.ค. และ 19 พ.ย. ขั้นนี้ปรับให้ตรงกับฉบับตรวจ ข้อที่พี่แก้เองใน admin.html จะไม่ถูกทับ จำนวนข้อ สี เกณฑ์ผ่าน และรูปประกอบคงเดิม ผลสอบเก่าไม่หาย กดตรวจก่อนได้ ยังไม่เขียนอะไร</p>
     <button class="ghost" id="btn-check" disabled>ตรวจก่อน</button>
     <button id="btn-patch" disabled>ปรับเป็นฉบับล่าสุด</button>
     <div class="log" id="log-patch"></div>
@@ -94,7 +94,7 @@ const AUTH_TH={
 };
 const th=e=>AUTH_TH[e.code]||("เข้าระบบไม่สำเร็จ ("+(e.code||e.message)+")");
 
-let MAKEUP=null, PATCH=null, PLAN=null, SETS=null;
+let KNOWN=null, MAKEUP=null, PATCH=null, PLAN=null, SETS=null;
 
 onAuthStateChanged(auth,async user=>{
   $("scr-login").classList.toggle("hidden",!!user);
@@ -107,6 +107,7 @@ onAuthStateChanged(auth,async user=>{
   }catch(e){logM("โหลดชุดสอบซ่อมไม่ได้ "+e.message,"err");}
   try{
     PATCH=await (await fetch("data/quiz-2026-10.json",{cache:"no-store"})).json();
+    KNOWN=await (await fetch("data/quiz-known-2026.json",{cache:"no-store"})).json();
     $("btn-check").disabled=false;
   }catch(e){logP("โหลดรายการแก้ไม่ได้ "+e.message,"err");}
 });
@@ -161,11 +162,15 @@ $("btn-makeup").onclick=async()=>{
 const NAME={basic1:"Basic",adv1:"Advance",adv2:"Pro"};
 const F=["cat","q","ch","ans","ex"];
 const same=(a,b)=>F.every(f=>JSON.stringify(a[f])===JSON.stringify(b[f]));
+// ข้อที่บนระบบไม่ตรงกับรุ่นใดที่ Neo เคยออก = พี่แก้เองใน admin.html จะไม่ทับ
 function makePlan(sets,NEW){
   return Object.keys(NAME).map(k=>{
-    const cur=(sets[k]&&sets[k].qs)||[], nq=NEW[k].qs;
-    const diff=nq.map((q,i)=>cur[i]&&same(cur[i],q)?null:i+1).filter(x=>x!==null);
-    return{k,cur,nq,diff};
+    const cur=(sets[k]&&sets[k].qs)||[], nq=NEW[k].qs, diff=[], own=[];
+    nq.forEach((q,i)=>{
+      if(cur[i]&&same(cur[i],q))return;
+      if(cur[i]&&!(KNOWN[k][i]||[]).some(v=>same(cur[i],v)))own.push(i+1);else diff.push(i+1);
+    });
+    return{k,cur,nq,diff,own};
   });
 }
 
@@ -178,7 +183,8 @@ $("btn-check").onclick=async()=>{
     if(!SETS[x.k]){logP("✗ ไม่พบชุด "+NAME[x.k]+" บนระบบ","err");continue;}
     if(x.cur.length!==x.nq.length)logP("⚠ "+NAME[x.k]+" บนระบบมี "+x.cur.length+" ข้อ ฉบับล่าสุดมี "+x.nq.length+" ข้อ","warn");
     if(x.diff.length){n+=x.diff.length;logP("✓ "+NAME[x.k]+" จะปรับ "+x.diff.length+" ข้อ: ข้อ "+x.diff.join(" "),"ok");}
-    else logP("• "+NAME[x.k]+" ตรงกับฉบับล่าสุดแล้ว","info");
+    else if(!x.own.length)logP("• "+NAME[x.k]+" ตรงกับฉบับล่าสุดแล้ว","info");
+    if(x.own.length)logP("⚠ "+NAME[x.k]+" ไม่ทับ ข้อ "+x.own.join(" ")+" เพราะพี่แก้เองใน admin.html บอก Neo ได้ว่าจะใช้ฉบับไหน","warn");
   }
   logP("สรุป จะปรับ "+n+" ข้อ","info");
   $("btn-patch").disabled=n===0;
@@ -193,7 +199,7 @@ $("btn-patch").onclick=async()=>{
     logP("ดาวน์โหลดสำรองของเดิมแล้ว","ok");
     for(const x of todo){
       const set=JSON.parse(JSON.stringify(SETS[x.k]));
-      set.qs=x.nq.map((q,i)=>Object.assign({},q,{img:(x.cur[i]&&x.cur[i].img)||q.img||""})); // คงรูปเดิม
+      set.qs=x.nq.map((q,i)=>x.own.includes(i+1)?x.cur[i]:Object.assign({},q,{img:(x.cur[i]&&x.cur[i].img)||q.img||""})); // คงข้อที่พี่แก้เองและรูปเดิม
       await setDoc(doc(db,"quizSets",x.k),set);
       logP("✓ บันทึกชุด "+NAME[x.k]+" แล้ว","ok");
     }
