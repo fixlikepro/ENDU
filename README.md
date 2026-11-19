@@ -89,3 +89,7 @@ GitHub Pages หรือ static host ใดก็ได้ — push main branch
 - ต้นฉบับ `data/source/advance-makeup.json` (ข้อเดิมมีช่อง `orig` = ลำดับข้อในชุด Advance)
 - สร้างด้วย `python3 data/build-makeup-2026-11.py` ได้ `data/quiz-makeup-2026-11.json`
 - เอาขึ้นใช้งานด้วย `add-makeup.html` เขียนเฉพาะชุดนี้ ไม่แตะสามชุดเดิม สีและเกณฑ์ผ่านคัดลอกจากชุด Advance
+
+## แก้เฉพาะข้อ 2026-11-19
+
+`patch-quiz.html` แก้ 9 ข้อในสามชุดเดิม (ไฟส่องหลัง เป็น ไฟแบ็คไลท์ และข้อไอซี BGA) ตาม `data/patch-2026-11-19.json` แก้เฉพาะข้อที่บนระบบยังเหมือนฉบับเดือนตุลาคม ข้อที่เคยแก้ใน admin.html ไม่แตะ รูปประกอบคงเดิม ใช้แทน update-quiz.html เมื่อไม่แน่ใจว่าเคยแก้ข้อสอบในระบบหรือยัง
