@@ -27,7 +27,7 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
 </head>
 <body>
 <h1>อัปเดตข้อสอบ พ.ย. 2026</h1>
-<p>หน้าเดียวจบ สองงาน เพิ่มชุดสอบซ่อมระดับกลาง และแก้ 13 ข้อในชุดเดิม</p>
+<p>หน้าเดียวจบ สองงาน เพิ่มชุดสอบซ่อมระดับต้นและระดับกลาง และแก้ 19 ข้อในชุดเดิม</p>
 
 <div class="box" id="scr-login">
   <h2>เข้าระบบ</h2>
@@ -43,15 +43,15 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
   <p id="user-tag" class="info"></p>
 
   <div class="box">
-    <h2><span class="step">1</span>เพิ่มชุดสอบซ่อมระดับกลาง</h2>
-    <p>40 ข้อ ใช้เมื่อนักเรียนสอบ Advance ไม่ผ่าน ไม่แตะชุดอื่น สีและเกณฑ์ผ่านเหมือนชุด Advance</p>
+    <h2><span class="step">1</span>เพิ่มชุดสอบซ่อมระดับต้นและระดับกลาง</h2>
+    <p>สองชุด ชุดละ 40 ข้อ Basic สอบซ่อม ใช้เมื่อสอบ Basic ไม่ผ่าน และ Advance สอบซ่อม ใช้เมื่อสอบ Advance ไม่ผ่าน ไม่แตะชุดอื่น สีและเกณฑ์ผ่านเหมือนชุดแรกของระดับนั้น กดซ้ำได้ ชุดสอบซ่อมจะถูกเขียนทับด้วยฉบับล่าสุด</p>
     <button id="btn-makeup" disabled>เพิ่มชุดสอบซ่อม</button>
     <div class="log" id="log-makeup"></div>
   </div>
 
   <div class="box">
-    <h2><span class="step">2</span>แก้ 13 ข้อในชุดเดิม</h2>
-    <p>ไฟส่องหลัง เป็น ไฟแบ็คไลท์ ข้อไอซี BGA คำถามข้อกระแสไต่ถึงระดับแอมป์ และคำว่า ด่าน เป็น ขั้นตอน แก้เฉพาะข้อที่ยังเหมือนฉบับเดือนตุลาคม ข้อที่พี่เคยแก้เองใน admin.html จะไม่ถูกแตะ รูปประกอบคงเดิม กดตรวจก่อนได้ ยังไม่เขียนอะไร</p>
+    <h2><span class="step">2</span>แก้ 19 ข้อในชุดเดิม</h2>
+    <p>ไฟส่องหลัง เป็น ไฟแบ็คไลท์ ข้อไอซี BGA คำถามข้อกระแสไต่ถึงระดับแอมป์ คำว่า ด่าน เป็น ขั้นตอน และชุด Basic 6 ข้อ (ค่าตั้งเครื่องจ่ายไฟ 3.8 ถึง 4.0 โวลต์ ลำดับดับไฟแบตลิเธียม เฉลยทิศงัดจอ ติดกาวกันน้ำ ใบฝากซ่อม) แก้เฉพาะข้อที่ยังเหมือนฉบับเดือนตุลาคม ข้อที่พี่เคยแก้เองใน admin.html จะไม่ถูกแตะ รูปประกอบคงเดิม กดตรวจก่อนได้ ยังไม่เขียนอะไร</p>
     <button class="ghost" id="btn-check" disabled>ตรวจก่อน</button>
     <button id="btn-patch" disabled>แก้ข้อที่ตรวจผ่าน</button>
     <div class="log" id="log-patch"></div>
@@ -102,7 +102,7 @@ onAuthStateChanged(auth,async user=>{
   if(!user)return;
   $("user-tag").textContent="เข้าระบบเป็น "+user.email;
   try{
-    MAKEUP=(await (await fetch("data/quiz-makeup-2026-11.json",{cache:"no-store"})).json()).adv1r;
+    MAKEUP=await (await fetch("data/quiz-makeup-2026-11.json",{cache:"no-store"})).json();
     $("btn-makeup").disabled=false;
   }catch(e){logM("โหลดชุดสอบซ่อมไม่ได้ "+e.message,"err");}
   try{
@@ -138,18 +138,22 @@ async function readAll(){const s={};(await getDocs(collection(db,"quizSets"))).f
 
 /* ── งาน 1 ชุดสอบซ่อม ── */
 $("btn-makeup").onclick=async()=>{
-  if(!confirm("เพิ่มชุด "+MAKEUP.name+" "+MAKEUP.qs.length+" ข้อ ใช่ไหม"))return;
+  const FROM={basic1r:"basic1",adv1r:"adv1"};
+  const keys=Object.keys(MAKEUP);
+  if(!confirm("เพิ่มชุด "+keys.map(k=>MAKEUP[k].name+" "+MAKEUP[k].qs.length+" ข้อ").join(" และ ")+" ใช่ไหม"))return;
   $("btn-makeup").disabled=true;
   try{
     const backup=await readAll();
     download("backup-quizSets-"+new Date().toISOString().slice(0,10)+".json",backup);
     logM("ดาวน์โหลดสำรองของเดิมแล้ว","ok");
-    const src=backup.adv1;
-    if(!src)throw new Error("ไม่พบชุด Advance บนระบบ");
-    const style={};["color","cardCls","passBg","passColor","passLine"].forEach(k=>{if(src[k]!==undefined)style[k]=src[k];});
-    const merged=Object.assign({},style,MAKEUP);
-    await setDoc(doc(db,"quizSets","adv1r"),merged);
-    logM("✓ เพิ่ม "+merged.name+" "+merged.qs.length+" ข้อ เกณฑ์ผ่าน "+(merged.passLine??"-")+"% เรียบร้อย","ok");
+    for(const k of keys){
+      const src=backup[FROM[k]];
+      if(!src)throw new Error("ไม่พบชุด "+FROM[k]+" บนระบบ");
+      const style={};["color","cardCls","passBg","passColor","passLine"].forEach(f=>{if(src[f]!==undefined)style[f]=src[f];});
+      const merged=Object.assign({},style,MAKEUP[k]);
+      await setDoc(doc(db,"quizSets",k),merged);
+      logM("✓ "+merged.name+" "+merged.qs.length+" ข้อ เกณฑ์ผ่าน "+(merged.passLine??"-")+"% เรียบร้อย","ok");
+    }
   }catch(e){logM("✗ "+e.message,"err");$("btn-makeup").disabled=false;}
 };
 
