@@ -27,7 +27,7 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
 </head>
 <body>
 <h1>อัปเดตข้อสอบ พ.ย. 2026</h1>
-<p>หน้าเดียวจบ สองงาน เพิ่มชุดสอบซ่อมระดับต้นและระดับกลาง และแก้ 19 ข้อในชุดเดิม</p>
+<p>หน้าเดียวจบ สองงาน เพิ่มชุดสอบซ่อมระดับต้นและระดับกลาง และปรับสามชุดแรกเป็นฉบับล่าสุด</p>
 
 <div class="box" id="scr-login">
   <h2>เข้าระบบ</h2>
@@ -50,10 +50,10 @@ button:disabled{background:#3A3530;color:#7A736C;cursor:not-allowed;}
   </div>
 
   <div class="box">
-    <h2><span class="step">2</span>แก้ 19 ข้อในชุดเดิม</h2>
-    <p>ไฟส่องหลัง เป็น ไฟแบ็คไลท์ ข้อไอซี BGA คำถามข้อกระแสไต่ถึงระดับแอมป์ คำว่า ด่าน เป็น ขั้นตอน และชุด Basic 6 ข้อ (ค่าตั้งเครื่องจ่ายไฟ 3.8 ถึง 4.0 โวลต์ ลำดับดับไฟแบตลิเธียม เฉลยทิศงัดจอ ติดกาวกันน้ำ ใบฝากซ่อม) แก้เฉพาะข้อที่ยังเหมือนฉบับเดือนตุลาคม ข้อที่พี่เคยแก้เองใน admin.html จะไม่ถูกแตะ รูปประกอบคงเดิม กดตรวจก่อนได้ ยังไม่เขียนอะไร</p>
+    <h2><span class="step">2</span>ปรับสามชุดแรกเป็นฉบับล่าสุด</h2>
+    <p>ข้อสอบ Basic Advance Pro ที่อยู่บนระบบเป็นรุ่น 6 ต.ค. ยังไม่มีการแก้ของ 7 ต.ค. 11 ต.ค. และ 19 พ.ย. ขั้นนี้ปรับให้ตรงกับฉบับตรวจทุกข้อ จำนวนข้อ สี เกณฑ์ผ่าน และรูปประกอบคงเดิม ผลสอบเก่าไม่หาย กดตรวจก่อนได้ ยังไม่เขียนอะไร</p>
     <button class="ghost" id="btn-check" disabled>ตรวจก่อน</button>
-    <button id="btn-patch" disabled>แก้ข้อที่ตรวจผ่าน</button>
+    <button id="btn-patch" disabled>ปรับเป็นฉบับล่าสุด</button>
     <div class="log" id="log-patch"></div>
   </div>
 
@@ -106,7 +106,7 @@ onAuthStateChanged(auth,async user=>{
     $("btn-makeup").disabled=false;
   }catch(e){logM("โหลดชุดสอบซ่อมไม่ได้ "+e.message,"err");}
   try{
-    PATCH=await (await fetch("data/patch-2026-11-19.json",{cache:"no-store"})).json();
+    PATCH=await (await fetch("data/quiz-2026-10.json",{cache:"no-store"})).json();
     $("btn-check").disabled=false;
   }catch(e){logP("โหลดรายการแก้ไม่ได้ "+e.message,"err");}
 });
@@ -157,19 +157,15 @@ $("btn-makeup").onclick=async()=>{
   }catch(e){logM("✗ "+e.message,"err");$("btn-makeup").disabled=false;}
 };
 
-/* ── งาน 2 แก้ข้อในชุดเดิม ── */
+/* ── งาน 2 ปรับสามชุดแรกเป็นฉบับล่าสุด ── */
 const NAME={basic1:"Basic",adv1:"Advance",adv2:"Pro"};
 const F=["cat","q","ch","ans","ex"];
 const same=(a,b)=>F.every(f=>JSON.stringify(a[f])===JSON.stringify(b[f]));
-// จับคู่ด้วยเนื้อข้อ ไม่ใช้ลำดับข้อ เผื่อเคยเพิ่มหรือลบข้อใน admin.html
-function makePlan(sets,patch){
-  return patch.map(p=>{
-    const qs=(sets[p.set]&&sets[p.set].qs)||[];
-    const iOld=qs.findIndex(q=>same(q,p.old)), iNew=qs.findIndex(q=>same(q,p.new));
-    const label=NAME[p.set]+" ข้อ "+(p.i+1)+" "+p.new.q.slice(0,40)+"…";
-    if(iOld>=0)return{p,idx:iOld,status:"fix",label};
-    if(iNew>=0)return{p,idx:iNew,status:"done",label};
-    return{p,idx:-1,status:"edited",label};
+function makePlan(sets,NEW){
+  return Object.keys(NAME).map(k=>{
+    const cur=(sets[k]&&sets[k].qs)||[], nq=NEW[k].qs;
+    const diff=nq.map((q,i)=>cur[i]&&same(cur[i],q)?null:i+1).filter(x=>x!==null);
+    return{k,cur,nq,diff};
   });
 }
 
@@ -177,33 +173,31 @@ $("btn-check").onclick=async()=>{
   $("log-patch").innerHTML="";
   SETS=await readAll();
   PLAN=makePlan(SETS,PATCH);
+  let n=0;
   for(const x of PLAN){
-    if(x.status==="fix")logP("✓ จะแก้  "+x.label,"ok");
-    else if(x.status==="done")logP("• แก้แล้ว "+x.label,"info");
-    else logP("⚠ ไม่แตะ พี่เคยแก้ข้อนี้เอง "+x.label,"warn");
+    if(!SETS[x.k]){logP("✗ ไม่พบชุด "+NAME[x.k]+" บนระบบ","err");continue;}
+    if(x.cur.length!==x.nq.length)logP("⚠ "+NAME[x.k]+" บนระบบมี "+x.cur.length+" ข้อ ฉบับล่าสุดมี "+x.nq.length+" ข้อ","warn");
+    if(x.diff.length){n+=x.diff.length;logP("✓ "+NAME[x.k]+" จะปรับ "+x.diff.length+" ข้อ: ข้อ "+x.diff.join(" "),"ok");}
+    else logP("• "+NAME[x.k]+" ตรงกับฉบับล่าสุดแล้ว","info");
   }
-  const n=PLAN.filter(x=>x.status==="fix").length;
-  logP("สรุป จะแก้ "+n+" · แก้แล้ว "+PLAN.filter(x=>x.status==="done").length+" · ไม่แตะ "+PLAN.filter(x=>x.status==="edited").length,"info");
+  logP("สรุป จะปรับ "+n+" ข้อ","info");
   $("btn-patch").disabled=n===0;
 };
 
 $("btn-patch").onclick=async()=>{
-  const todo=PLAN.filter(x=>x.status==="fix");
-  if(!confirm("แก้ "+todo.length+" ข้อ ใช่ไหม"))return;
+  const todo=PLAN.filter(x=>x.diff.length&&SETS[x.k]);
+  if(!confirm("ปรับ "+todo.map(x=>NAME[x.k]+" "+x.diff.length+" ข้อ").join(" · ")+" ใช่ไหม"))return;
   $("btn-patch").disabled=true;
   try{
     download("backup-quizSets-"+new Date().toISOString().slice(0,10)+".json",SETS);
     logP("ดาวน์โหลดสำรองของเดิมแล้ว","ok");
-    const touched={};
     for(const x of todo){
-      const set=touched[x.p.set]||(touched[x.p.set]=JSON.parse(JSON.stringify(SETS[x.p.set])));
-      set.qs[x.idx]=Object.assign({},set.qs[x.idx],x.p.new); // คง img เดิม
+      const set=JSON.parse(JSON.stringify(SETS[x.k]));
+      set.qs=x.nq.map((q,i)=>Object.assign({},q,{img:(x.cur[i]&&x.cur[i].img)||q.img||""})); // คงรูปเดิม
+      await setDoc(doc(db,"quizSets",x.k),set);
+      logP("✓ บันทึกชุด "+NAME[x.k]+" แล้ว","ok");
     }
-    for(const [k,set] of Object.entries(touched)){
-      await setDoc(doc(db,"quizSets",k),set);
-      logP("✓ บันทึกชุด "+NAME[k]+" แล้ว","ok");
-    }
-    logP("เสร็จแล้ว กด ตรวจก่อน อีกครั้ง ทุกข้อควรขึ้นว่า แก้แล้ว","ok");
+    logP("เสร็จแล้ว กด ตรวจก่อน อีกครั้ง ทุกชุดควรขึ้นว่า ตรงกับฉบับล่าสุดแล้ว","ok");
   }catch(e){logP("✗ "+e.message,"err");$("btn-patch").disabled=false;}
 };
 </script>
